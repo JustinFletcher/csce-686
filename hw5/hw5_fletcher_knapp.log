@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9) (preloaded format=pdflatex 2015.4.9)  23 APR 2016 08:41
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9) (preloaded format=pdflatex 2015.4.9)  23 APR 2016 09:23
 entering extended mode
 **hw5_fletcher_knapp.tex
 (C:\csce-686\hw5\hw5_fletcher_knapp.tex
@@ -649,20 +649,13 @@ Underfull \hbox (badness 10000) in paragraph at lines 56--58
 LaTeX Warning: Citation `Lecture21' on page 1 undefined on input line 59.
 
 
-LaTeX Warning: Citation `Dartmouth' on page 1 undefined on input line 64.
+LaTeX Warning: Citation `Dartmouth' on page 1 undefined on input line 59.
 
 
-LaTeX Warning: Citation `Dartmouth' on page 1 undefined on input line 64.
+LaTeX Warning: Citation `Suhendry' on page 1 undefined on input line 72.
 
 
-LaTeX Warning: Citation `Suhendry' on page 1 undefined on input line 66.
-
-
-LaTeX Warning: Citation `Suhendry' on page 1 undefined on input line 68.
-
-
-LaTeX Warning: Reference `fig:density_size_runtime' on page 1 undefined on inpu
-t line 68.
+LaTeX Warning: Citation `Suhendry' on page 1 undefined on input line 74.
 
 [1
 
@@ -681,7 +674,7 @@ Missing character: There is no € in font cmr12!
 Missing character: There is no “ in font cmr12!
  [3] [4]
 
-LaTeX Warning: Citation `ClassNotes686' on page 5 undefined on input line 171.
+LaTeX Warning: Citation `ClassNotes686' on page 5 undefined on input line 172.
 
 [5] (C:\csce-686\hw5\hw5_fletcher_knapp.bbl
 
@@ -693,13 +686,13 @@ LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 14872 strings out of 493921
- 280328 string characters out of 3144847
+ 14871 strings out of 493921
+ 280302 string characters out of 3144847
  314582 words of memory out of 3000000
- 17858 multiletter control sequences out of 15000+200000
+ 17857 multiletter control sequences out of 15000+200000
  20104 words of font info for 59 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
- 55i,9n,54p,837b,311s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 55i,8n,54p,837b,307s stack positions out of 5000i,500n,10000p,200000b,50000s
  <C:\Users\Justin Fletcher\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\
 ec\dpi600\ecbx1440.pk> <C:\Users\Justin Fletcher\AppData\Local\MiKTeX\2.9\fonts
 \pk\ljfour\jknappen\ec\dpi600\eccc1200.pk> <C:\Users\Justin Fletcher\AppData\Lo
@@ -719,9 +712,9 @@ nts/cm/cmmi8.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts
 /cmr8.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cms
 y10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy8
 .pfb>
-Output written on hw5_fletcher_knapp.pdf (6 pages, 166162 bytes).
+Output written on hw5_fletcher_knapp.pdf (6 pages, 165656 bytes).
 PDF statistics:
- 321 PDF objects out of 1000 (max. 8388607)
+ 319 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

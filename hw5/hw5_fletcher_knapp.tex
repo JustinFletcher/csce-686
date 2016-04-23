@@ -56,16 +56,22 @@
 \textit{Show that it is easy to find a simple greedy heuristic that guarantees a 2-approximation factor for the minimum vertex covering problem.}
 \linebreak
 
-Given a graph, $G=(V, E)$, the vertex cover is a set of vertices such that every edge touches, or is incident to, at least one of them \cite{Lecture21}. A minimum vertex cover is defined as
-
+Given a graph, $G=(V, E)$, the vertex cover is a set of vertices such that every edge touches, or is incident to, at least one of them \cite{Lecture21}. A minimum vertex cover is, is the smallest possible set of vertices which covers all edges \cite{Dartmouth}, and is formally defined as
 \begin{align*}
-%find\:I\:\subseteq \{1,...,m\}\:minimizing:\ \sum_{j \in I}\:s.t\:\bigcup_{j \in I}S_j=E \:\cite{Dartmouth}
-find\:I\:\subseteq V(G)\:minimizing:\ \sum_{j \in I}\:s.t\:\bigcup_{j \in I}S_j=E \:\cite{Dartmouth}
-\end{align*}
+I\subseteq V(G) 
+\end{align*} 
+where,
+\begin{equation*}
+\min |I| \\
+\end{equation*}
+\begin{equation*}
+\; s.t. \; E(G)\subseteq \bigcup_{u,v \in I}\{uv\}.
+\end{equation*}
 
-Without a heuristic, this problem is NP-Hard. In order to approximate the solution, we introduce a matching in $G$. A matching is a set of edges such that no two edges share a common vertex \cite{Suhendry}. A vertex is thus matched if it is one of the endpoints in the matching set of edges. The maximal matching set H is achieved when no further edges can be added to H without violating the matching constraint.
 
-The maximal matching is related to the vertex cover \cite{Suhendry}. A valid vertex cover is also the set of all endpoints in any maximal matching set $H$. To illustrate this concept, two graphs are shown in Figure  \ref{fig:density_size_runtime}, where the set of endpoints for any maximal matching, depicted as bold lines, also forms a valid vertex cover.
+Without a heuristic, this problem is NP-Hard. In order to approximate the solution, we introduce a matching in $G$. A matching is a set of edges such that no two edges are incident to a common vertex \cite{Suhendry}. A vertex is thus matched, or saturated, if an edge in the matching is incident to that vertex. A maximal matching $M$ is obtained when no further edges can be added to $M$ without violating the matching constraint.
+
+The maximal matching is related to the vertex cover \cite{Suhendry}, in that a valid vertex cover is also the set of all endpoints in any maximal matching $M$. To illustrate this concept, two graphs are shown in Figure  \ref{fig:maximalmatchings}, where the set of endpoints for any maximal matching, depicted as bold lines, also forms a valid vertex cover.
 
 
 \begin{figure} \label{fig:maximalmatchings}
@@ -85,27 +91,23 @@ The maximal matching is related to the vertex cover \cite{Suhendry}. A valid ver
 	
 \end{figure}
 
-If we assume that some function $f(G)$ is the minimum vertex cover for $G$, then the following is true:
+If we assume that some vertex set $I \subseteq V(G)$ is the minimum vertex cover for $G$, then we also know that $|I| \geq |M|$, where $M$ is any maximal matching. $I$ must contain at least one of vertices to which every edge in $M$ is incident, in order to cover all edges in $G$. Since no more edges can be added to a maximal matching, all remaining edges are adjacent to at least one edge in $M$. We can cover the entire graph by choosing the endpoint vertices to all edges in $M$.
 
-\textit{$|f(G)| \geq |H|$, where $H$ is any maximal matching}
-
-$f(G)$ needs to contain at least one of each vertex for all edges in $H$ in order to cover all edges in $G$. Since no more edges can be added to a maximal matching, all remaining edges are adjacent to at least one edge in $H$. We can cover the entire graph by choosing the endpoint vertices to all edges in H.
-
-We define an algorithm, $GetH$, to produce $H$, presented as the following:
+We define an algorithm, $GetM$, to produce $M$, which is included as Algorithm \ref{alg:get2Approx} in this work. The algorithm produces a maximal matching. All pairs of vertices that are added into $C$ are unique, and thus eliminating any edges that share a vertex. The algorithm only terminates when there are no uncovered edges. Using this relationship, we conclude that the following:
 
 
 \begin{algorithm}[ht!]
-	\caption{This algorithm describes 2-approximation heuristic. }. \textit{Inputs:} $E$, a set of edges.
-	 \textit{Outputs:} Set of vertices $C$.
+	\caption{This algorithm describes 2-approximation heuristic. \textit{Inputs:} $E$, a set of edges.
+		\textit{Outputs:} Set of vertices $C$.} 
 	\begin{algorithmic}[1]
 		
 		
 		\Procedure{get2Approx}{$E$}
 		\State $C \gets \phi$ 
-		\State $E \gets$ set of edges
-		\While{($u, $v) not covered, and $u \neq v$} \Comment{Iterate over every potential edge }
+		%\State $E \gets$ set of edges
+		\While{($u, v$) not covered, and $u \neq v$} \Comment{Iterate over every potential edge }
 		\State Add $u$ to $C$.
-		\State Add $c$ to $C$.
+		\State Add $v$ to $C$.
 		\EndWhile
 		\EndProcedure
 		
@@ -114,15 +116,14 @@ We define an algorithm, $GetH$, to produce $H$, presented as the following:
 \end{algorithm}
 
 
-The algorithm will produce a maximal matching. All pairs of vertices that are added into $C$ are unique, and thus eliminating any edges that share a vertex. The algorithm only terminates when there are no uncovered edges. Using this relationship, we conclude that the following:
 
 \begin{align*}
-|f(G)|  \geq |H| = GetH(G) / 2
+|I|  \geq |H| = GetH(G) / 2
 \end{align*}
-The vertex cover is size $2H$. The previous relationship can be written as:
+The vertex cover is size $2M$. The previous relationship can be written as:
 
 \begin{align*}
-GetH(G) <= 2 |f(G)|
+GetH(G) \leq 2 |I|
 \end{align*}
 
 The heuristic that we presented uses the relationship between matching sets and the set covering problem. By finding a maximal matching, we can 2-approximate the minimum vertex cover problem with O(m) complexity.
