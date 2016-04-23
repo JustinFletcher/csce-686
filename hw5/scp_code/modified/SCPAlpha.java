@@ -76,10 +76,6 @@ public class SCPAlpha
         }
         
         searchSCP();
-        if ((ogSingleSets != null) && (ogSingleSets.size() > 0))
-        {
-          ogBHat.addAll(ogSingleSets);
-        }
 
         System.out.println("Best Solution:");
         printResultState();
@@ -137,63 +133,105 @@ public class SCPAlpha
     
     ogDone = false;
 
-    // Set up initial solution. Add first block to block queue.
-    ogCB.add(new Integer(0));
-    Set currentSet = ogBlockArray.get(currentBlock()).ogSets.get(ogBlockArray.get(currentBlock()).ogCurrentPos);
-    addCoveredElementsFromSet(currentSet, ogE, true);
-    ogB.add(currentSet);
-    ogZ = ogZ + currentSet.ogCost;
-    
-    // *** Next state/Feasibility *** Finds the next state from the tableau. The feasibility function
-    // is implied, as only valid solutions are considered.
-    addMin(getMin(currentBlock()));
-    
-    while (!ogDone)
+    // Check to make sure that, after adding sets from heruistic 3, we don't already have a solution.
+    if (eCoversR())
     {
-      // Maintain partial solution
-      currentSet = ogBlockArray.get(currentBlock()).ogSets.get(ogBlockArray.get(currentBlock()).ogCurrentPos);
-      ogB.add(currentSet);
-      ogZ = ogZ + currentSet.ogCost;
-      addCoveredElementsFromSet(currentSet, ogE, true);
-      //System.out.println("Test1: " + currentSet.ogID + "/" + currentSet.ogCost + ", " + 
-      //        (ogZ + currentSet.ogCost) + ", " + ogZHat);
-      //printCB();
-      //printCP();
-      //printState();
-      
-      // Add current Do to L
-      if(ogUseH1)
+      ogBHat.addAll(ogSingleSets);
+      ogZHat = 0;
+      for (Set m: ogSingleSets)
       {
-        ogL.add(new LItem(ogE, ogZ));
+        ogZHat = ogZHat + m.ogCost;
       }
-      
-      // Heuristic 1
-      // If there are covered sets that are greater than the current cover, 
-      // but have less cost, then there is no reason to search this branch.
-      if ((ogUseH1) && (solutionInL(ogE, ogZ)))
+    }
+    else
+    {
+      // Set up initial solution. Add first block to block queue.
+      if (!ogUseH3)
       {
-        //printState();
-        step4();
-      }
-      else if (ogZ < ogZHat)
-      {
-        // *** Solution ***
-        // Determines if a partial solution is a valid solution to the SCP.
-        step5();
+        ogCB.add(new Integer(0));
       }
       else
       {
-        // *** Backtracking *** step
-        // If we encounter a node that is higher in cost than the current
-        // solution, then exploring this branch would
-        // not be fruitful.
-        step4();
+        // Get first selectable block
+        int j = 0;
+        while ((j < ogBlockArray.size()) && (ogBlockArray.get(j).ogSets.size() <= 1))
+        {
+          j++;
+        }
+        ogCB.add(new Integer(j));
       }
+    
+      Set currentSet = ogBlockArray.get(currentBlock()).ogSets.get(ogBlockArray.get(currentBlock()).ogCurrentPos);
+      addCoveredElementsFromSet(currentSet, ogE, true);
+      ogB.add(currentSet);
+      ogZ = ogZ + currentSet.ogCost;
+      
       // *** Next state/Feasibility *** Finds the next state from the tableau. The feasibility function
       // is implied, as only valid solutions are considered.
       addMin(getMin(currentBlock()));
+      
+      // Check to make sure all sets have not been covered.
+      if (currentBlock() == ogBlockArray.size())
+      {
+        ogDone = true;
+      }
+      
+      while (!ogDone)
+      {
+        // Maintain partial solution
+        currentSet = ogBlockArray.get(currentBlock()).ogSets.get(ogBlockArray.get(currentBlock()).ogCurrentPos);
+        ogB.add(currentSet);
+        ogZ = ogZ + currentSet.ogCost;
+        addCoveredElementsFromSet(currentSet, ogE, true);
+        //System.out.println("Test1: " + currentSet.ogID + "/" + currentSet.ogCost + ", " + 
+        //        (ogZ + currentSet.ogCost) + ", " + ogZHat);
+        //printCB();
+        //printCP();
+        //printState();
+        
+        // Add current Do to L
+        if(ogUseH1)
+        {
+          ogL.add(new LItem(ogE, ogZ));
+        }
+        
+        // Heuristic 1
+        // If there are covered sets that are greater than the current cover, 
+        // but have less cost, then there is no reason to search this branch.
+        if ((ogUseH1) && (solutionInL(ogE, ogZ)))
+        {
+          //printState();
+          step4();
+        }
+        else if (ogZ < ogZHat)
+        {
+          // *** Solution ***
+          // Determines if a partial solution is a valid solution to the SCP.
+          step5();
+        }
+        else
+        {
+          // *** Backtracking *** step
+          // If we encounter a node that is higher in cost than the current
+          // solution, then exploring this branch would
+          // not be fruitful.
+          step4();
+        }
+        // *** Next state/Feasibility *** Finds the next state from the tableau. The feasibility function
+        // is implied, as only valid solutions are considered.
+        addMin(getMin(currentBlock()));
+      }
+      
+      // Add all sets from heuristic 3 and add to ZHat
+      if ((ogSingleSets != null) && (ogSingleSets.size() > 0))
+      {
+        ogBHat.addAll(ogSingleSets);
+        for (Set m: ogSingleSets)
+        {
+          ogZHat = ogZHat + m.ogCost;
+        }
+      }
     }
-    
     //printState();
     
   } // searchSCP
@@ -601,7 +639,7 @@ public class SCPAlpha
           pos2++;
         }
         temp = setLine.substring(pos1 + 1, pos2);
-        newSet.ogCost = Integer.parseInt(temp);
+        newSet.ogCost = Integer.parseInt(temp.trim());
         newSet.ogID = ogSetID++;
         ogSetArray.add(newSet);
       }
@@ -612,7 +650,7 @@ public class SCPAlpha
   /**
    * Heuristic 3
    * Collects all sets that are the only cover for a single item. These
-   * Must be included in the final soltuion set.
+   * Must be included in the final solution set.
    * 
    * Determines if all sets can be covered. If not, then no solution is possible.
    * 
