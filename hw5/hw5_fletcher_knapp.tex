@@ -56,7 +56,7 @@
 \textit{Show that it is easy to find a simple greedy heuristic that guarantees a 2-approximation factor for the minimum vertex covering problem.}
 \linebreak
 
-Given a graph, $G=(V, E)$, the vertex cover is a set of vertices such that every edge touches, or is incident to, at least one of them \cite{Lecture21}. A minimum vertex cover is, is the smallest possible set of vertices which covers all edges \cite{Dartmouth}, and is formally defined as
+Given a graph, $G=(V, E)$, the vertex cover is a set of vertices such that every edge touches, or is incident to, at least one of them \cite{Lecture21}. An unweighted minimum vertex cover is, is the smallest possible set of vertices which covers all edges \cite{Dartmouth}, and is formally defined as
 \begin{align*}
 I\subseteq V(G) 
 \end{align*} 
@@ -67,8 +67,10 @@ where,
 \begin{equation*}
 \; s.t. \; E(G)\subseteq \bigcup_{u,v \in I}\{uv\}.
 \end{equation*}
-
-
+If the vertices are weighted, and the minimum-weight vertex cover is desired, then the minimization constraint becomes 
+\begin{equation*}
+\min \sum_{v\in I} w(v).
+\end{equation*}
 Without a heuristic, this problem is NP-Hard. In order to approximate the solution, we introduce a matching in $G$. A matching is a set of edges such that no two edges are incident to a common vertex \cite{Suhendry}. A vertex is thus matched, or saturated, if an edge in the matching is incident to that vertex. A maximal matching $M$ is obtained when no further edges can be added to $M$ without violating the matching constraint.
 
 The maximal matching is related to the vertex cover \cite{Suhendry}, in that a valid vertex cover is also the set of all endpoints in any maximal matching $M$. To illustrate this concept, two graphs are shown in Figure  \ref{fig:maximalmatchings}, where the set of endpoints for any maximal matching, depicted as bold lines, also forms a valid vertex cover.
@@ -77,12 +79,10 @@ The maximal matching is related to the vertex cover \cite{Suhendry}, in that a v
 \begin{figure} \label{fig:maximalmatchings}
 	
 	
-	\begin{minipage}[b]{0.5\linewidth}
 		
 		\centering
-		%\centerline{\includegraphics[width = 3in]{FigureA.jpg}}
+		\centerline{\includegraphics[width = 5in]{FigureA.jpg}}
 		%  \vspace{2.0cm}
-	\end{minipage}
 	\hfill
 	
 	%\vspace{-0.5cm}
@@ -167,12 +167,26 @@ In practice, there are many additional constraints for CVRP problems. One such d
 \paragraph{}
 Another domain that can constrain VRP problems is retail. For any particular product supplier, the cost of delivering goods to stores is a significant investment. This cost can be reduced with CVRP algorithms. From personal experience in the industry, we use the floral industry as a hypothetical example. The constraints for this application include not combining certain products (some flowers and plants cannot be shipped together), always sending certain drivers to a particular customer (customer loyalty), delivering highly perishable goods first, or long lived items last. Additional considerations include how profitable a particular customer is and the risk associated with delivering late products, which could affect the likelihood of including a customer in a highly constrained route.
 
-\section{Design for the Set Cover Problem [b, b.1]} \label{scn:design}
+\section{Design for the Set Cover Problem [c.1]} \label{scn:design}
 
 In this section, we discuss the design of the Set Covering problem (SCP) as introduced in \cite{ClassNotes686}.
 
 \subsection{Problem Domain Description: SCP}
 Given a set $R=\{r_1,...,r_m\}$, and a family $\mathcal{F}=\{S_1,...,S_N\}$ of sets $S_j \subset R$ any sub-family $\mathcal{F^\prime}=\{S_j1, S_j2,...,S_jn\}$ of $\mathcal{F}$, a set covering of R is defined as
+
+
+\section{Testing the AFIT SCP Solver [c.2]} \label{scn:testing}
+
+In this section, we describe the performance of the AFIT SCP Program (ASP) when applied to several SCP problems of varying complexity. The performance of the ASP is evaluated on a real-world Air Force problem, and is rigorously examined using a set of contrived SCP instances; these instances are constructed such that many combinations of number of cover-elements, number of covering sets, and density are considered. 
+
+\subsection{The RIF Problem: An Air Force Application of SCP [c.3.1]} \label{scn:testing_usaf}
+
+In order to evaluate the performance of the ASP on a real-world\footnote{This problem is only notionally real-world, and is constructed for the purposes of this work.} problem, we define a problem which is relevant to the United States Air Force (USAF). The USAF has a budget problem; in order to solve this problem it has decided to fire a large portion of its workforce. Though this problem is applicable to the USAF as a whole, we limit the examination of the problem in this work to the community of pilots, for ease of analysis. The elements which must be covered in this problem are the individual aircraft to be flown. The covering sets are the pilots, each of which can fly at least one jet; for simplicity we assume that the cost of a pilot is directly proportional to their pay grade. 
+
+\subsection{Rigorous Testing [c.3.2]} \label{scn:testing_complete}
+
+In this section we evaluate the performance of the ASP on problems of varying dimensionality. An SCP instance can be defined abstractly with three quantities, the number of sets, the number of cover elements, and the density. Because the complexity of the problem depends on all three of these quantities, we vary all three in our experiments in this work. 
+... In these figures three plots are displayed, each of which highlights a particular element of the algorithms performance. The top-right plots are tile plots which show the mean running time, over $20$ runs, of the SCP program, for the number number of sets indicated on the horizontal axis, and the number os elements indicated on the vertical axis. The bottom-right plot displays the marginal mean and standard deviation of program running time, as the number of sets varies. These values are calculated by taking the mean and standard deviation of the mean running time values for a particular number of sets, across all numbers of elements to cover. The top-left plot shows the marginal mean and standard deviation of running time
 
 
 \pagebreak
