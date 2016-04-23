@@ -118,15 +118,15 @@ We define an algorithm, $GetM$, to produce $M$, which is included as Algorithm \
 
 
 \begin{align*}
-|I|  \geq |H| = GetH(G) / 2
+|I|  \geq |M| = GetM(G) / 2
 \end{align*}
 The vertex cover is size $2M$. The previous relationship can be written as:
 
 \begin{align*}
-GetH(G) \leq 2 |I|
+GetM(G) \leq 2 |I|
 \end{align*}
 
-The heuristic that we presented uses the relationship between matching sets and the set covering problem. By finding a maximal matching, we can 2-approximate the minimum vertex cover problem with O(m) complexity.
+The heuristic that we presented uses the relationship between matching sets and the set covering problem. By finding a maximal matching, we can 2-approximate the minimum vertex cover problem with $O(m)$ complexity.
 
 
 
