@@ -1,0 +1,183 @@
+
+\documentclass[12pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{epsfig}
+\usepackage{epstopdf}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{upgreek}
+\usepackage{tikz}
+\usepackage{verbatim}
+
+\usepackage{multirow}
+\usepackage[T1]{fontenc}
+\usepackage{beramono}
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinelanguage{Julia}%
+{morekeywords={abstract,break,case,catch,const,continue,do,else,elseif,%
+		end,export,false,for,function,immutable,import,importall,if,in,%
+		macro,module,otherwise,quote,return,switch,true,try,type,typealias,%
+		using,while},%
+	sensitive=true,%
+	morecomment=[l]\#,%
+	morecomment=[n]{\#=}{=\#},%
+	morestring=[s]{"}{"},%
+	morestring=[m]{'}{'},%
+}[keywords,comments,strings]%
+
+\lstset{%
+	language         = Julia,
+	keywordstyle     = \bfseries\color{blue},
+	stringstyle      = \color{magenta},
+	commentstyle     = \color{gray},
+	backgroundcolor= \color{backcolour}, 
+	basicstyle=\footnotesize,
+	showstringspaces = false,               
+	numbers=left,                    
+	numbersep=5pt,                 
+	tabsize=4
+}
+
+
+\begin{document}
+
+\title{CSCE 686 Homework 5 - SCP Design}
+\author{Jon Knapp and Justin Fletcher}
+\maketitle
+
+\section{Talbi 1.5 [a]}
+\textit{Show that it is easy to find a simple greedy heuristic that guarantees a 2-approximation factor for the minimum vertex covering problem.}
+\linebreak
+
+Given a graph, $G=(V, E)$, the vertex cover is a set of vertices such that every edge touches, or is incident to, at least one of them \cite{Lecture21}. A minimum vertex cover is defined as
+
+\begin{align*}
+%find\:I\:\subseteq \{1,...,m\}\:minimizing:\ \sum_{j \in I}\:s.t\:\bigcup_{j \in I}S_j=E \:\cite{Dartmouth}
+find\:I\:\subseteq V(G)\:minimizing:\ \sum_{j \in I}\:s.t\:\bigcup_{j \in I}S_j=E \:\cite{Dartmouth}
+\end{align*}
+
+Without a heuristic, this problem is NP-Hard. In order to approximate the solution, we introduce a matching in $G$. A matching is a set of edges such that no two edges share a common vertex \cite{Suhendry}. A vertex is thus matched if it is one of the endpoints in the matching set of edges. The maximal matching set H is achieved when no further edges can be added to H without violating the matching constraint.
+
+The maximal matching is related to the vertex cover \cite{Suhendry}. A valid vertex cover is also the set of all endpoints in any maximal matching set $H$. To illustrate this concept, two graphs are shown in Figure  \ref{fig:density_size_runtime}, where the set of endpoints for any maximal matching, depicted as bold lines, also forms a valid vertex cover.
+
+
+\begin{figure} \label{fig:maximalmatchings}
+	
+	
+	\begin{minipage}[b]{0.5\linewidth}
+		
+		\centering
+		%\centerline{\includegraphics[width = 3in]{FigureA.jpg}}
+		%  \vspace{2.0cm}
+	\end{minipage}
+	\hfill
+	
+	%\vspace{-0.5cm}
+	\caption{This figure displays two examples of maximal matching, shown as bold edges.}
+	
+	
+\end{figure}
+
+If we assume that some function $f(G)$ is the minimum vertex cover for $G$, then the following is true:
+
+\textit{$|f(G)| \geq |H|$, where $H$ is any maximal matching}
+
+$f(G)$ needs to contain at least one of each vertex for all edges in $H$ in order to cover all edges in $G$. Since no more edges can be added to a maximal matching, all remaining edges are adjacent to at least one edge in $H$. We can cover the entire graph by choosing the endpoint vertices to all edges in H.
+
+We define an algorithm, $GetH$, to produce $H$, presented as the following:
+
+
+\begin{algorithm}[ht!]
+	\caption{This algorithm describes 2-approximation heuristic. }. \textit{Inputs:} $E$, a set of edges.
+	 \textit{Outputs:} Set of vertices $C$.
+	\begin{algorithmic}[1]
+		
+		
+		\Procedure{get2Approx}{$E$}
+		\State $C \gets \phi$ 
+		\State $E \gets$ set of edges
+		\While{($u, $v) not covered, and $u \neq v$} \Comment{Iterate over every potential edge }
+		\State Add $u$ to $C$.
+		\State Add $c$ to $C$.
+		\EndWhile
+		\EndProcedure
+		
+	\end{algorithmic}	
+	\label{alg:get2Approx}
+\end{algorithm}
+
+
+The algorithm will produce a maximal matching. All pairs of vertices that are added into $C$ are unique, and thus eliminating any edges that share a vertex. The algorithm only terminates when there are no uncovered edges. Using this relationship, we conclude that the following:
+
+\begin{align*}
+|f(G)|  \geq |H| = GetH(G) / 2
+\end{align*}
+The vertex cover is size $2H$. The previous relationship can be written as:
+
+\begin{align*}
+GetH(G) <= 2 |f(G)|
+\end{align*}
+
+The heuristic that we presented uses the relationship between matching sets and the set covering problem. By finding a maximal matching, we can 2-approximate the minimum vertex cover problem with O(m) complexity.
+
+
+
+\section{Talbi 1.11 [a]}
+
+\textit{Define one or more greedy algorithms for the CVRP problem. Give some examples of constraints or more general models encountered in practice.}
+\paragraph{}
+The Capacitated Vehicle Routing Problem (CVRP) is defined by a Graph $G = (V, A)$. The nodes represent "customers" and $A$ defines costs, denoted as $c_{ij}$, associated with each edge. Additionally, a central "depot" node is defined, as well as a capacity $Q$ for each "vehicle," associated with each "route" [ref MCT1]. A depot can only have $H$ number of routes. Customers have an associated demand, $d_i$, which defines the quantity that will be used to calculate the total capacity of a route. This problem finds routes for a fleet of vehicles so that every customer is covered and no vehicle exceeds its capacity.
+\paragraph{}
+A well-known algorithm for solving the CVRP is the Clarke and Wright Savings (CWS) algorithm, developed in 1964 [2]. It is a greedy, heuristic driven algorithm that does not guarantee an optimal solution, although it will often provide a good solution [3]. This method is initialized by assuming that each customer (non-depot node), is visited by its own vehicle. If the graph consists of the depot node A, and two customers $i$ and $j$, the cost $D1$, is calculated using the formula
+
+\begin{align*}
+D1 = c_{Ai} + c_{iA} + c_{Aj} + c_{jA}
+\end{align*}
+
+\paragraph{}
+The algorithm combines routes to obtain a new route by assigning two customers to be served by the same vehicle, assuming the vehicle's capacity Q has not been exceeded. The new cost is
+
+\begin{align*}
+D2 = cAi + cij + cjA
+\end{align*}
+
+A total cost savings, $S_{ij}$, is calculated:
+
+\begin{align*}
+Sij = D1 – D2 = ciA + c Aj – cij
+\end{align*}
+
+This saving is used to determine if the points $i$ and $j$ should be on the same route. Large values of S indicate that the route is advantageous. 
+The algorithm starts by calculating the savings for all pairs of customers and putting them in a sequence $R$. This sequence is then sorted in descending order of the savings. When considering a pair of points i and j whose capacity is less then $Q$ for a particular route, they are added to the route such that i is visited and then j, but only if this can be done without disrupting the direct connection between two nodes. In the parallel version of this algorithm, only one pass is required through $R$, and routes are built simultaneously [3].
+\paragraph{}
+Not only does this algorithm not guarantee an optimal solution, it cannot guarantee that the number of routes will be exactly $H$. A particular execution of the algorithm may find some $H\prime$ greater then $H$. However, using the savings heuristic it can produce a solution that is usually close to optimal [4].
+\paragraph{}
+There are a wide variety of solutions to the CVRP in the literature that use Monte-Carlo techniques to improve the search. One such algorithm, presented by [ref 2], uses a random sampling to acquire a solution.
+\paragraph{}
+In practice, there are many additional constraints for CVRP problems. One such domain is the oil and gas industry [4]. For particular delivery vehicles, the presence of flow meters can be used to satisfy the demands of multiple customers. Additionally, after certain operations, the delivery vehicles may require cleaning, which must be factored into the route plan. Although not specifically mentioned in the source, the presence of refueling stations would constrain the routes further.
+
+\paragraph{}
+Another domain that can constrain VRP problems is retail. For any particular product supplier, the cost of delivering goods to stores is a significant investment. This cost can be reduced with CVRP algorithms. From personal experience in the industry, we use the floral industry as a hypothetical example. The constraints for this application include not combining certain products (some flowers and plants cannot be shipped together), always sending certain drivers to a particular customer (customer loyalty), delivering highly perishable goods first, or long lived items last. Additional considerations include how profitable a particular customer is and the risk associated with delivering late products, which could affect the likelihood of including a customer in a highly constrained route.
+
+\section{Design for the Set Cover Problem [b, b.1]} \label{scn:design}
+
+In this section, we discuss the design of the Set Covering problem (SCP) as introduced in \cite{ClassNotes686}.
+
+\subsection{Problem Domain Description: SCP}
+Given a set $R=\{r_1,...,r_m\}$, and a family $\mathcal{F}=\{S_1,...,S_N\}$ of sets $S_j \subset R$ any sub-family $\mathcal{F^\prime}=\{S_j1, S_j2,...,S_jn\}$ of $\mathcal{F}$, a set covering of R is defined as
+
+
+\pagebreak
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{algorthimBibP5}
+
+\end{document}
