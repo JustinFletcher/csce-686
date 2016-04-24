@@ -39,4 +39,10 @@ Cs105 notes, dartmouth. [Online]. Available:
   \url{http://www.suhendry.net/blog/?p=1647}
 \BIBentrySTDinterwordspacing
 
+\bibitem{ClassNotes686}
+G.~Lamont, ``Advanced algorthim design class notes: Algorithm design.''
+
+\bibitem{graph_algorithms_cristofides}
+Cristofides, \emph{Graph Algorithms}.
+
 \end{thebibliography}
