@@ -11,6 +11,7 @@ public class SCPAlpha
   public static final String SCP_H2 = "-H2";
   public static final String SCP_H3 = "-H3";
   public static final String SCP_OUT = "-out";
+  public static final String SCP_OUTALL = "-noout";
   
   ArrayList<Element> ogElements = null;
   ArrayList<Set> ogSetArray = null;
@@ -29,11 +30,13 @@ public class SCPAlpha
   boolean ogUseH2 = true;
   boolean ogUseH3 = true;
   boolean ogUseOut = false;
+  boolean ogNoOut = false;
 
   int ogP = -1;
 
   public SCPAlpha(String[] args)
   {
+    long time = System.currentTimeMillis();
     try
     {
       for (String m: args)
@@ -54,6 +57,10 @@ public class SCPAlpha
         {
           ogUseOut = true;
         }
+        else if (m.toLowerCase().equals(SCP_OUTALL))
+        {
+          ogNoOut = true;
+        }
       }
       File temp = new File(args[0]);
       parseFile(temp);
@@ -70,18 +77,20 @@ public class SCPAlpha
         // Generates the tree in the form of a tableau.
         setupTableau(ogUseH2);
         
-        if (ogUseOut)
+        if ((ogUseOut) && (!ogNoOut))
         {
           System.out.println(getTableauString());
         }
         
         searchSCP();
 
-        System.out.println("Best Solution:");
-        printResultState();
-        
+        if (!ogNoOut)
+        {
+          System.out.println("Best Solution:");
+          printResultState();
+        }
       }
-      else
+      else if (!ogNoOut)
       {
         System.out.println("Search Not Possible");
       }
@@ -89,6 +98,10 @@ public class SCPAlpha
     catch (Exception e)
     {
       e.printStackTrace();
+    }
+    if ((!ogNoOut) && (ogUseOut))
+    {
+      System.out.println("Time: " + (System.currentTimeMillis() - time) + " ms");
     }
   } // SCPAlpha
   
@@ -283,7 +296,7 @@ public class SCPAlpha
       ogBHat.addAll(ogB);
       // Set Z to best solution
       ogZHat = ogZ;
-      if (ogUseOut)
+      if ((ogUseOut) && (!ogNoOut))
       {
         System.out.println("Paritial Solution:");
         printResultState();
