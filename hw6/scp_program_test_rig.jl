@@ -64,7 +64,7 @@ end
 #################
 a = construct_random_set_matrix(10,50, 0.2)
 
-program_dir = "C:\\csce-686\\hw5\\scp_code\\original\\"
+program_dir = "C:\\csce-686\\hw6\\scp_code\\original\\"
 cd(program_dir)
 set_matrix_to_input_file(a, "deleteme.txt", program_dir)
 
@@ -76,7 +76,7 @@ runtime = toq()
 #################
 a = construct_random_set_matrix(10,50, 0.2)
 
-program_dir = "C:\\csce-686\\hw5\\scp_code\\modified\\"
+program_dir = "C:\\csce-686\\hw6\\scp_code\\modified\\"
 cd(program_dir)
 set_matrix_to_input_file(a, "deleteme.txt", program_dir)
 
@@ -152,7 +152,7 @@ n_elements_seq = [10:5:100]
 
 # Initialize the program calls.
 original_scp_call = ` java -jar "SCP Solver 2006.jar" `
-original_program_dir = "C:\\csce-686\\hw5\\scp_code\\original\\"
+original_program_dir = "C:\\csce-686\\hw6\\scp_code\\original\\"
 
 
 # Run the eperiment.
@@ -214,7 +214,7 @@ n_elements_seq = [10:5:100]
 
 # Initialize the program calls.
 modified_scp_call = ` java -jar scpKF.jar temp_input_file.txt -H3 -noout`
-modified_program_dir = "C:\\csce-686\\hw5\\scp_code\\modified\\"
+modified_program_dir = "C:\\csce-686\\hw6\\scp_code\\modified\\"
 
 # Run the eperiment.
 modified_scp_runtime_mat = @time run_scp_program_experiment(modified_scp_call, modified_program_dir, num_reps, n_sets_seq, n_elements_seq, 0.30)
