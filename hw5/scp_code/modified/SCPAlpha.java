@@ -130,6 +130,7 @@ public class SCPAlpha
       for (Set m: ogSingleSets)
       {
         addCoveredElementsFromSet(m, ogE, true);
+        
       }
     }
     
