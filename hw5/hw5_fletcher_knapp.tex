@@ -159,7 +159,7 @@ The algorithm starts by calculating the savings for all pairs of customers and p
 
 Not only does this algorithm not guarantee an optimal solution, it cannot guarantee that the number of routes will be exactly $H$. A particular execution of the algorithm may find some $H^\prime$ greater then $H$. However, using the savings heuristic it can produce a solution that is usually close to optimal [4].
 
-There are a wide variety of solutions to the CVRP in the literature that use Monte-Carlo techniques to improve the search. One such algorithm, presented by [ref 2], uses a random sampling to acquire a solution.
+There are a wide variety of solutions to the CVRP in the literature that use Monte-Carlo techniques to improve the search. One such algorithm, described in [2], uses a random sampling to acquire a solution.
 
 In practice, there are many additional constraints for CVRP problems. One such domain is the oil and gas industry [4]. For particular delivery vehicles, the presence of flow meters can be used to satisfy the demands of multiple customers. Additionally, after certain operations, the delivery vehicles may require cleaning, which must be factored into the route plan. Although not specifically mentioned in the source, the presence of refueling stations would constrain the routes further.
 
@@ -167,11 +167,60 @@ Another domain that can constrain VRP problems is retail. For any particular pro
 
 \section{Design for the Set Cover Problem [c.1]} \label{scn:design}
 
-In this section, we discuss the design of the Set Covering Problem (SCP) as introduced in \cite{ClassNotes686}. Though an in-depth analysis of the design of an algorithmic solution to the SCP problem domain is deferred to later work, the broad outline of the mapping is presented in this section.
+In this section, we discuss the design of the Set Covering Problem (SCP) as introduced in \cite{ClassNotes686}. Though an in-depth analysis of the design of an algorithmic solution to the SCP problem domain is deferred to later work, the broad outline of the mapping is presented in this section. We also rigorously characterize the running time performance of the AFIT SCP Program for a large set of instances in the SCP problem domain.
 
 \subsection{Problem Domain Description: SCP}
-Given a set $R=\{r_1,...,r_m\}$, and a family $\mathcal{F}=\{S_1,...,S_N\}$ of sets $S_j \subset R$ any sub-family $\mathcal{F^\prime}=\{S_{j1}, S_{j2},...,S_{jn}\}$ of $\mathcal{F}$, a set covering of R is defined as
+Given a set of elements: $E=\{e_1,...,e_n\}$, a family of subsets, $\{S_1,...,S_m\}\subseteq 2^E$, and weights $w_j \geq 0$ for each $j\in\{1,...,m\}$, the SCP is defined by the following formula:
 
+\begin{align*}
+I \subseteq \{1,...,m\} \min \sum_{J \in I} w_j \\
+\:s.t.\: \bigcup_{J \in I} S_j = E
+\end{align*}
+
+
+The input domain of the problem, which is a set of elements, $E$, can be specified by a set. The family of sets, $S$, is a set of sets, where each subset contains elements $E^\prime$ and cost $c$. Formally:
+
+\begin{itemize}
+	\item Input Domain $D_i$: A set of elements, E, and a set of sets. 
+	\begin{itemize}
+		\item E: Elements
+		\item S($E^\prime$, c): Set of sets
+		\begin{itemize}
+			\item $E^\prime$: Set of elements where $E^\prime \in E$
+			\item c: Cost of set
+		\end{itemize}
+	\end{itemize}	
+	\item Output Domain $D_o$: A Set of sets, $B$, such that $B \in S$, and $B$ satisfies set minimum covering property. 
+	
+	\item Input Function $I(E, S)$: Determines if the input conditions on the input $E$ and $S$ are satisfied. The required input conditions for this domain is that, for all $S(E^\prime, c)$, $E^\prime \in E$.
+	\item Output Function: $O(B)$: Determines if the output conditions are met. The conditions are given met when:
+	\begin{align*}
+	I \subseteq \{1,...,m\} \min \sum_{J \in I} w_j \\
+	\:s.t.\: \bigcup_{J \in I} S_j = E
+	\end{align*}
+	
+\end{itemize}
+
+\subsection{Problem Domain and Algorithm Domain Integration}
+
+The algorithm domain to which the SCP problem will be mapped in this work is the global search via depth-first search with backtracking (GS/DFS/BT) algorithm. Thus, the algorithm domain used in this work is that of GS/DFS/BT, which is described in \cite{ClassNotes686}. In order to use this algorithm to solve the SCP problem, the SCP domain must be mapped to the GS/DFS/BT domain. This integration is accomplished as follows:
+
+\begin{itemize}
+	\item GS/DFS/BT Basic Search Constructs
+	\begin{itemize}
+		\item \textbf{initialization($D_i$)}: Initializes $T$, where $T$ is a tableau. $T$ consists of $M$ blocks of columns, one for each $e_k$ of $E$. The $k$th block will consist of the sets of $S$ that cover $e_k$, but do not contain lower numbered elements $e_1,...,e_{k-1}$.	
+		\item \textbf{next-state-generator($D_i$)}: Returns $B$, where $B \in S$.
+		\item \textbf{selection($D_i$)}: Returns $b$ where $b \in S$. Generally, the specific set chosen is selected from a block of $T$ in such a way as to maximize the coverage of the elements $E$. In the case of SCP, we require that all elements $E$ are covered and that the solution is the minimum cover for $E$.
+		\item \textbf{feasibility}: Returns a Boolean, which is true if, for some $b \subset S$, $E$ is covered and is false otherwise.
+		\item \textbf{solution($B$, $z$)}: Returns a Boolean which is true if $S$ covers $E$ and is the minimum cover of $E$, i.e. $z$ is minimized.
+		\item \textbf{objective}:Returns a set $D_o$, which in this algorithm is a minimum cover of $E$.
+	\end{itemize}
+	\item Delay Termination: Because the previous GS/DFS/BT search only finds a minimal set cover, rather than a minimum set cover, we must prevent the algorithm from terminating until all covering sets have been either implicitly or explicitly examined.
+	\begin{itemize}
+		\item In some as yet undefined loop, iterate finding all minimal set covers possible in the problem instance.
+		\item Repeat the GS/DFS/BT search for SCP, avoiding duplication where possible.
+	\end{itemize}
+\end{itemize}
 
 \section{Testing the AFIT SCP Solver [c.2]} \label{scn:testing}
 
@@ -181,9 +230,9 @@ In this section, we describe the performance of the AFIT SCP Program (ASP) when 
 
 In order to evaluate the performance of the ASP on a real-world\footnote{This problem is only notionally real-world, and is constructed for the purposes of this work.} problem, we define a problem which is relevant to the United States Air Force (USAF). The USAF has a budget problem; in order to solve this problem it has decided to fire a large portion of its workforce. This policy is called a reduction in force (RIF), and so we call the associated problem of selecting which Airmen to fire the RIF problem.
 
-Though this problem is applicable to the USAF as a whole, we limit the examination of the problem in this work to the community of UAV pilots, for ease of analysis. The elements which must be covered in this problem are the individual aircraft to be flown. The covering sets are the pilots, each of which can fly at least one type UAV; for simplicity we assume that the cost of a pilot is directly proportional to their pay grade, and that pay grade is randomly assigned between O-1 an O-5. Clearly, the problem is to find the minimum cost combination of pilots, such that all aircraft can be flow. For simplicity and empirical consistency, we do not consider operational sustainability or crew lifestyle impacts, though this would serve as an interesting topic for future works. 
+Though this problem is applicable to the USAF as a whole, we limit the examination of the problem in this work to the community of UAV pilots, for ease of analysis. The elements which must be covered in this problem are the individual aircraft to be flown. The covering sets are the pilots, each of which can fly at least one type UAV; for simplicity we assume that the cost of a pilot is directly proportional to their pay grade, and that pay grade is randomly assigned between O-1 an O-5. Clearly, the problem is to find the minimum cost combination of pilots, such that all aircraft can be flown. For simplicity and empirical consistency, we do not consider operational sustainability or crew lifestyle impacts, though this would serve as an interesting topic for future works. 
 
-There is, however, a detail of this problem that is an additional constraint to the typical SCP formulation. All aircraft must be flown, but pilots are rated for \emph{types} of aircraft, rather than individual airframes. Additionally, not all aircraft are located in a single place, nor are their pilots. These two constraint, taken together, result in a medium density matrix; the fact that a pilot could fly many aircarft of the same type increases the density, but the fact that pilots and aircraft are physically disparate reduces it. Additionally, we know that there are considerably more pilots than aircraft, at present, so there should generally be more sets than elements. In the following section, we examine problem instances which could be mapped to the RIF problem for organizations of all sizes, from flight to wings. 
+There is, however, a detail of this problem that is an additional constraint to the typical SCP formulation. All aircraft must be flown, but pilots are rated for \emph{types} of aircraft, rather than individual airframes. Additionally, not all aircraft are located in a single place, nor are their pilots. These two constraint, taken together, result in a medium density matrix; the fact that a pilot could fly many aircraft of the same type increases the density, but the fact that pilots and aircraft are physically disparate reduces it. Additionally, we know that there are considerably more pilots than aircraft, at present, so there should generally be more sets than elements. In the following section, we examine problem instances which could be mapped to the RIF problem for organizations of all sizes, from flight to wings. 
 
 \subsection{Rigorous Testing [c.3.2]} \label{scn:testing_complete}
 
