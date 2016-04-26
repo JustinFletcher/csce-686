@@ -1,3 +1,13 @@
+/**
+ * --------------------------------------------------------------------------
+ * Classification: UNCLASSIFIED
+ * --------------------------------------------------------------------------
+ *
+ * Class: Block
+ * Program: SCP/SPP program
+ *
+ * DESCRIPTION: Implements a Block
+ */
 import java.util.ArrayList;
 import java.util.Comparator;
 

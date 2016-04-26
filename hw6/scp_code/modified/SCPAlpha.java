@@ -1,3 +1,14 @@
+/**
+ * --------------------------------------------------------------------------
+ * Classification: UNCLASSIFIED
+ * --------------------------------------------------------------------------
+ *
+ * Class: SCPAlpha
+ * Program: SCP/SPP program
+ *
+ * DESCRIPTION: This program solves the set-covering problem and the
+ *   set-partitioning problem using the algorithm in Christofides
+ */
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -6,13 +17,13 @@ import java.util.ArrayList;
 
 public class SCPAlpha
 {
-  
+
   public static final String SCP_H1 = "-H1";
   public static final String SCP_H2 = "-H2";
   public static final String SCP_H3 = "-H3";
   public static final String SCP_OUT = "-out";
   public static final String SCP_OUTALL = "-noout";
-  
+
   ArrayList<Element> ogElements = null;
   ArrayList<Set> ogSetArray = null;
   ArrayList<Block> ogBlockArray = null;
@@ -34,12 +45,13 @@ public class SCPAlpha
 
   int ogP = -1;
 
+
   public SCPAlpha(String[] args)
   {
     long time = System.currentTimeMillis();
     try
     {
-      for (String m: args)
+      for (String m : args)
       {
         if (m.toUpperCase().equals(SCP_H1))
         {
@@ -64,7 +76,8 @@ public class SCPAlpha
       }
       File temp = new File(args[0]);
       parseFile(temp);
-            
+
+      // *****   Reduction 2.1
       if (searchPossible())
       {
         // Initialization Phase
@@ -72,16 +85,16 @@ public class SCPAlpha
         // The original algorithm sorts the sets according to cost, but ties are sorted by lexicographical order. 
         // Heutistic two sorts ties using number of covered items per set. Sets with greater coverage are tried
         // first, because they eliminate a larger portion of the search space.
-        
+
         // *** Set of candidates *** generation
         // Generates the tree in the form of a tableau.
         setupTableau(ogUseH2);
-        
+
         if ((ogUseOut) && (!ogNoOut))
         {
           System.out.println(getTableauString());
         }
-        
+
         searchSCP();
 
         if (!ogNoOut)
@@ -94,57 +107,57 @@ public class SCPAlpha
       {
         System.out.println("Search Not Possible");
       }
-    }
-    catch (Exception e)
+    } catch (Exception e)
     {
       e.printStackTrace();
     }
     if ((!ogNoOut) && (ogUseOut))
     {
-      System.out.println("Time: " + (System.currentTimeMillis() - time) + " ms");
+      System.out
+              .println("Time: " + (System.currentTimeMillis() - time) + " ms");
     }
   } // SCPAlpha
-  
-  
+
+
   public void searchSCP()
   {
     // Initialization
     ogZ = 0;
     ogZHat = Integer.MAX_VALUE;//infinity
-    
+
     // ogB is the partial solution Do
     ogB = new ArrayList<Set>();
-    
+
     // ogBHat is the current best solution
     ogBHat = new ArrayList<Set>();
     ogBHat.clear();
-    
+
     // Initialize the E variable to keep track of covered rows.
     ogE = new int[ogElements.size()];
-    
+
     // Heuristic 3
     // If there are rows that are only covered by one set, then that set must be included.
     // Add the cover to E, and this will eliminate the block from consideration
     if ((ogUseH3) && (ogSingleSets != null) && (ogSingleSets.size() > 0))
     {
-      for (Set m: ogSingleSets)
+      for (Set m : ogSingleSets)
       {
         addCoveredElementsFromSet(m, ogE, true);
-        
+
       }
     }
-    
+
     // Initialize an array of current blocks. This array is used as a queue to keep
     // track of the current block and the history of selected blocks. This is also
     // an aid to backtracking.
     ogCB = new ArrayList<Integer>();
-    
+
     // Heuristic 1
     // Initialize L Array. This will keep track of all intermediate solutions and the
     // associated values. If a cover is encountered that is within a previous cover, but
     // has a greater cost, then there is no reason to consider this branch.
     ogL = new ArrayList<LItem>();
-    
+
     ogDone = false;
 
     // Check to make sure that, after adding sets from heruistic 3, we don't already have a solution.
@@ -152,7 +165,7 @@ public class SCPAlpha
     {
       ogBHat.addAll(ogSingleSets);
       ogZHat = 0;
-      for (Set m: ogSingleSets)
+      for (Set m : ogSingleSets)
       {
         ogZHat = ogZHat + m.ogCost;
       }
@@ -168,47 +181,45 @@ public class SCPAlpha
       {
         // Get first selectable block
         int j = 0;
-        while ((j < ogBlockArray.size()) && (ogBlockArray.get(j).ogSets.size() <= 1))
+        while ((j < ogBlockArray.size())
+                && (ogBlockArray.get(j).ogSets.size() <= 1))
         {
           j++;
         }
         ogCB.add(new Integer(j));
       }
-    
-      Set currentSet = ogBlockArray.get(currentBlock()).ogSets.get(ogBlockArray.get(currentBlock()).ogCurrentPos);
+
+      Set currentSet = ogBlockArray.get(currentBlock()).ogSets
+              .get(ogBlockArray.get(currentBlock()).ogCurrentPos);
       addCoveredElementsFromSet(currentSet, ogE, true);
       ogB.add(currentSet);
       ogZ = ogZ + currentSet.ogCost;
-      
+
       // *** Next state/Feasibility *** Finds the next state from the tableau. The feasibility function
       // is implied, as only valid solutions are considered.
       addMin(getMin(currentBlock()));
-      
+
       // Check to make sure all sets have not been covered.
       if (currentBlock() == ogBlockArray.size())
       {
         ogDone = true;
       }
-      
+
       while (!ogDone)
       {
         // Maintain partial solution
-        currentSet = ogBlockArray.get(currentBlock()).ogSets.get(ogBlockArray.get(currentBlock()).ogCurrentPos);
+        currentSet = ogBlockArray.get(currentBlock()).ogSets
+                .get(ogBlockArray.get(currentBlock()).ogCurrentPos);
+        //System.out.println("Test1: " + currentSet.ogID + "/" + currentSet.ogCost + ", " + ogZ + ", " + 
+        //        (ogZ + currentSet.ogCost) + ", " + ogZHat + ", Block: " + ogBlockArray.get(currentBlock()).ogID);
+
         ogB.add(currentSet);
         ogZ = ogZ + currentSet.ogCost;
         addCoveredElementsFromSet(currentSet, ogE, true);
-        //System.out.println("Test1: " + currentSet.ogID + "/" + currentSet.ogCost + ", " + 
-        //        (ogZ + currentSet.ogCost) + ", " + ogZHat);
         //printCB();
         //printCP();
         //printState();
-        
-        // Add current Do to L
-        if(ogUseH1)
-        {
-          ogL.add(new LItem(ogE, ogZ));
-        }
-        
+
         // Heuristic 1
         // If there are covered sets that are greater than the current cover, 
         // but have less cost, then there is no reason to search this branch.
@@ -219,6 +230,12 @@ public class SCPAlpha
         }
         else if (ogZ < ogZHat)
         {
+          // Add current Do to L
+          if (ogUseH1)
+          {
+            ogL.add(new LItem(ogE, ogZ));
+          }
+
           // *** Solution ***
           // Determines if a partial solution is a valid solution to the SCP.
           step5();
@@ -235,22 +252,23 @@ public class SCPAlpha
         // is implied, as only valid solutions are considered.
         addMin(getMin(currentBlock()));
       }
-      
+
       // Add all sets from heuristic 3 and add to ZHat
       if ((ogSingleSets != null) && (ogSingleSets.size() > 0))
       {
         ogBHat.addAll(ogSingleSets);
-        for (Set m: ogSingleSets)
+        for (Set m : ogSingleSets)
         {
           ogZHat = ogZHat + m.ogCost;
         }
       }
     }
     //printState();
-    
+
   } // searchSCP
-  
-   /**  *** Backtrack *** Step */
+
+
+  /**  *** Backtrack *** Step */
   public void step4()
   {
     if (ogB.isEmpty())
@@ -272,7 +290,8 @@ public class SCPAlpha
       removeLastB();
       //printState();
       // If we are at the end of the first block, then we are finished.
-      if ((currentBlock.ogCurrentPos >= currentBlock.ogSets.size()) && (currentBlock.ogID == 0))
+      if ((currentBlock.ogCurrentPos >= currentBlock.ogSets.size())
+              && (currentBlock.ogID == 0))
       {
         ogDone = true;
       }
@@ -285,7 +304,8 @@ public class SCPAlpha
       }
     }
   } // step4
-  
+
+
   /** *** Solution *** step */
   public void step5()
   {
@@ -307,10 +327,12 @@ public class SCPAlpha
     }
     //printState();
   } // step5
-  
-  
+
+
   /**
-   * Gets the nexy block from the first uncovered element in E
+   * **** Next state generator *****
+   * 
+   * Gets the next block from the first uncovered element in E
    * 
    * @param currentBlock - Current block position
    * @return
@@ -337,8 +359,8 @@ public class SCPAlpha
     }
     return result;
   } // getMin
-  
-  
+
+
   /** Adds latest minimum block to queue of blocks. */
   public void addMin(int min)
   {
@@ -347,8 +369,8 @@ public class SCPAlpha
       ogCB.add(min);
     }
   } // addMin
-  
-  
+
+
   /**
    * Heuristic 1
    * 
@@ -363,7 +385,7 @@ public class SCPAlpha
   public boolean solutionInL(int[] e, int z)
   {
     boolean result = false;
-    
+
     int i = 0;
     while ((i < ogL.size()) && (!result))
     {
@@ -373,10 +395,10 @@ public class SCPAlpha
       }
       i++;
     }
-    
+
     return result;
   } // solutionInL
-  
+
 
   /**
    * *** Initialization ***
@@ -398,7 +420,7 @@ public class SCPAlpha
       Block b = new Block(i);
       ArrayList<Set> sets = getAllCoveringSets(ogElements.get(i).ogName);
       b.ogSets = sets;
-      
+
       // Heuristic 2
       // The original algorithm sorts the sets according to cost, but ties are sorted by lexicographical order. 
       // Heuristic two sorts ties using number of covered items per set. Sets with greater coverage are tried
@@ -407,6 +429,7 @@ public class SCPAlpha
       ogBlockArray.add(b);
     }
   } // setupTableau
+
 
   /**
    * Gets all covering sets for the some item name
@@ -417,19 +440,19 @@ public class SCPAlpha
   public ArrayList<Set> getAllCoveringSets(int name)
   {
     ArrayList<Set> result = new ArrayList<Set>();
-    
-    for (Set m: ogSetArray)
+
+    for (Set m : ogSetArray)
     {
       if (m.ogSet[name - 1])
       {
         result.add(m);
       }
     }
-    
+
     return result;
   } // getAllCoveringSets
-  
-  
+
+
   /**
    * Determines if E covered R, or all covered
    * 
@@ -446,11 +469,11 @@ public class SCPAlpha
         break;
       }
     }
-    
+
     return result;
   } // eCoversR
-  
-  
+
+
   /**
    * *** Next State Generator ***
    * Adds the current set to E
@@ -472,18 +495,19 @@ public class SCPAlpha
       }
     }
   } // addCoveredElementsFromSet
-  
-  
+
+
   public String getTableauString()
   {
     String result = "";
-    
+
     System.out.print(formatStringLength(" ", 5, " ", false) + "|");
-    for (Block b: ogBlockArray)
+    for (Block b : ogBlockArray)
     {
-      for (Set m: b.ogSets)
+      for (Set m : b.ogSets)
       {
-        System.out.print(" " + formatStringLength((m.ogID) + "", 2, " ", false));
+        System.out
+                .print(" " + formatStringLength((m.ogID) + "", 2, " ", false));
       }
       System.out.print("|");
     }
@@ -491,10 +515,12 @@ public class SCPAlpha
 
     for (int i = 0; i < ogElements.size(); i++)
     {
-      System.out.print(formatStringLength(ogElements.get(i).ogName + "", 5, " ", false) + "|");
-      for (Block b: ogBlockArray)
+      System.out.print(
+              formatStringLength(ogElements.get(i).ogName + "", 5, " ", false)
+                      + "|");
+      for (Block b : ogBlockArray)
       {
-        for (Set m: b.ogSets)
+        for (Set m : b.ogSets)
         {
           System.out.print(" " + print(m.ogSet[i]));
         }
@@ -502,38 +528,39 @@ public class SCPAlpha
       }
       System.out.println();
     }
-    
+
     System.out.print(formatStringLength(" ", 5, " ", false) + "|");
-    for (Block b: ogBlockArray)
+    for (Block b : ogBlockArray)
     {
-      for (Set m: b.ogSets)
+      for (Set m : b.ogSets)
       {
-        System.out.print(" " + formatStringLength((m.ogCost) + "", 2, " ", false));
+        System.out.print(
+                " " + formatStringLength((m.ogCost) + "", 2, " ", false));
       }
       System.out.print("|");
     }
     System.out.println();
-    
+
     return result;
   } // getTableauString
-  
-  
+
+
   public static String print(boolean b)
   {
     return formatStringLength((b ? "1" : "0"), 2, " ", false);
   }
-  
-  
+
+
   public void printState()
   {
     System.out.print("E: ");
-    for (int r: ogE)
+    for (int r : ogE)
     {
-      System.out.print(r+ " ");
+      System.out.print(r + " ");
     }
     System.out.println();
     System.out.print("B: ");
-    for (Set r: ogB)
+    for (Set r : ogB)
     {
       System.out.print(r.ogID + " ");
     }
@@ -542,20 +569,20 @@ public class SCPAlpha
     System.out.println("\n");
 
   } // printState
-  
-  
+
+
   public void printResultState()
   {
     System.out.println("ZHat: " + ogZHat);
     System.out.print("BHat: ");
-    for (Set r: ogBHat)
+    for (Set r : ogBHat)
     {
       System.out.print(r.ogID + " ");
     }
     System.out.println("\n");
   } // printState
-  
-  
+
+
   public void printCP()
   {
     for (int i = 0; i < ogBlockArray.size(); i++)
@@ -564,8 +591,8 @@ public class SCPAlpha
     }
     System.out.println();
   }
-  
-  
+
+
   public int currentBlock()
   {
     if (ogCB.size() == 0)
@@ -574,24 +601,24 @@ public class SCPAlpha
     }
     return ogCB.get(ogCB.size() - 1);
   } // currentBlock
-  
-  
+
+
   public void removeLastBlock()
   {
     ogCB.remove(ogCB.size() - 1);
   } // removeLastB
-  
-  
+
+
   public void removeLastB()
   {
     ogB.remove(ogB.size() - 1);
   } // removeLastB
-  
-  
+
+
   public void printCB()
   {
     System.out.print("CB: ");
-    for (int m: ogCB)
+    for (int m : ogCB)
     {
       System.out.print(m + " ");
     }
@@ -659,9 +686,17 @@ public class SCPAlpha
       }
     }
   } // parseFile
-  
-  
-  /**
+
+
+ /**
+   * searchPossible: reduction_2_1
+   *
+   * This function performs the first half of reduction 2 as mentioned in
+   * Christofides.  This reduction removes from R and all sets in F, any
+   * element that appears in every set--since this element would be covered
+   * regardless of the solution.
+   * the element is not added back to R so this functin is no longer called
+   * 
    * Heuristic 3
    * Collects all sets that are the only cover for a single item. These
    * Must be included in the final solution set.
@@ -696,16 +731,16 @@ public class SCPAlpha
         // These sets must be included in the final result
         ogSingleSets.add(ogElements.get(i).ogCoveringSetArray.get(0));
       }
-      
+
       i++;
     }
-    
+
     if (ogUseH3)
     {
       if (ogSingleSets.size() != 0)
       {
         // Remove all single sets from the list of sets
-        for (Set singleSet: ogSingleSets)
+        for (Set singleSet : ogSingleSets)
         {
           int j = 0;
           boolean found = false;
@@ -721,11 +756,11 @@ public class SCPAlpha
         }
       }
     }
-    
+
     return result;
   } // searchPossible
-  
-  
+
+
   private void addToElement(int name, Set m)
   {
     int i = 0;
@@ -740,9 +775,8 @@ public class SCPAlpha
       }
       i++;
     }
-    
+
   } // addToElement
-  
 
 
   /** Loads text from file.
@@ -788,7 +822,7 @@ public class SCPAlpha
     return result.toString();
   } // loadStringFromFile
 
-  
+
   /** Formats a String to a length, with prefix specified as a parameter
    * 
    * @param m
@@ -798,7 +832,8 @@ public class SCPAlpha
    * @param theBuffer
    *          - String to append to front or back of the String
    * @return String - Formatted String */
-  public static String formatStringLength(String m, int length, String theBuffer, boolean after)
+  public static String formatStringLength(String m, int length,
+          String theBuffer, boolean after)
   {
     StringBuffer result = new StringBuffer();
 
@@ -835,6 +870,7 @@ public class SCPAlpha
     return result.toString();
   } // formatStringLength
 
+
   public static void main(String[] args)
   {
     SCPAlpha m = new SCPAlpha(args);
@@ -843,9 +879,10 @@ public class SCPAlpha
 
 class LItem
 {
-  int[] ogElements = null; 
+  int[] ogElements = null;
   int ogCost = 0;
-  
+
+
   public LItem(int[] elementsSource, int cost)
   {
     ogElements = new int[elementsSource.length];
@@ -855,11 +892,12 @@ class LItem
     }
     ogCost = cost;
   }
-  
+
+
   public boolean isWithin(int[] setArray)
   {
     boolean result = true;
-    
+
     for (int i = 0; i < ogElements.length; i++)
     {
       if ((ogElements[i] == 0) && (setArray[i] > 0))
@@ -867,21 +905,21 @@ class LItem
         result = false;
       }
     }
-    
+
     return result;
   } // isWithin
-  
-  
+
+
   public String toString()
   {
     String result = "";
-    
+
     for (int i = 0; i < ogElements.length; i++)
     {
       System.out.print(ogElements[i] + " ");
-    }    
+    }
     System.out.println(", Cost: " + ogCost);
     return result;
   }
-  
+
 } // LItem

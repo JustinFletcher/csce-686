@@ -1,3 +1,13 @@
+/**
+ * --------------------------------------------------------------------------
+ * Classification: UNCLASSIFIED
+ * --------------------------------------------------------------------------
+ *
+ * Class: Element
+ * Program: SCP/SPP program
+ *
+ * DESCRIPTION: Implements an element
+ */
 import java.util.ArrayList;
 
 public class Element
