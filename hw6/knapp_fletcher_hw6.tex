@@ -121,7 +121,11 @@ The algorithm domain to which the SCP problem will be mapped in this work is the
 \subsection{Algorithm Domain Specification Refinement}
 
 
-In order to further refine this design, in pursuit of executable code, we must disambiguate several operations. We define a candidate solution set to be sets, $B \subseteq S$. We first specify the next state generation and selection functions. The next state should be a state which has not been previously selected.
+In order to further refine this design, in pursuit of executable code, we must disambiguate several operations. We define a candidate solution set to be $B \subseteq S$. We first specify the next state generation and selection functions. The next state should be a state which has not been previously selected.
+
+The algorithm initializes a tableau, $T$. The tableau consists of $M$ blocks of columns, one for each $e_k$ of $E$. The $k$th block will consist of the sets of $S$ that cover $e_k$, but do not contain lower numbered elements $e_1,...,e_{k-1}$. In each block, a variable $g_i$ is initialized to the first position in each block $i$. This will keep track of the current set within the blocks.
+
+The algorithm will define a partial solution $D_0$, a partial solution metric $Z$, a current best solution $\hat{B}$, and a current best metric $\hat{Z}$.
 
 
 Three heuristics were created for the SCP. The first heuristic, which we call Heuristic 1, implements the dominance test as presented in [Chr. ref]. During the operation of the SCP algorithm, we will keep track of partial solutions in a set $L(E_{ck}, z_k)$, where $E_{ck}$ is the set coverage at step $k$, and $z_k$ is the associated cost at step $k$. If at some step $r > k$, $E_{cr} \subseteq E_{ck}$ and $z_r \geq z_k$, then we know that a previous solution was better than the solution at step $r$. We can thus abandon this branch of the search. One of the disadvantages of this technique is that maintaining $L$ can require significant memory, and the time required, which is polynomial, to search the list can potentially diminish the advantage of pruning branches of the tree. While not implemented, there are possibly ways to improve Heuristic 1. If, rather than a set of lists, $L$ was represented as a tree, so that searching $L$ could be performed in greater than $O(m)$, there could be significant time reduction. This is a possible future avenue for exploration.
@@ -134,6 +138,73 @@ Heuristic 3 takes advantage of the fact that we do not need to include blocks in
 \end{align*}
 If $\alpha_k = 1$, or there is only one set $S\prime$ in a block $k$, then that block contains a set that is the only cover for some element $e_k$. Rather than include this block in the search, $S^\prime$ is automatically included in the result set $B$. Additionally, the set coverage, $E_c$, is initialized to include those elements covered by $S^\prime$. In problems that have high coverages, this heuristic will not yield an improvement. However, if there exists any singly covered elements $e_k$, large portions of the search space will be eliminated before the search is even started, since that element already exists with $E_c$. The selection phase of the algorithm will never need to select any element from that block, because it will already have been covered.  If $\alpha_k = 0$ for some element $e_k$, then $e_k$ does not have a valid cover, and there is no solution possible.
 
+\begin{itemize}
+	\item $D_i$ - $(E, S)$, $ci$
+	\begin{itemize}
+		\item $E$ - Set of elements $e_k$, where $k = 1,...,m$
+		\item $D_o$ - Set of sets, $S_r$, where $r = 1,...,n$ Each set $S_r$ contains elements $e \in E$
+		\item $ci_r$ - Cost for each set $S_r$.
+	\end{itemize}
+	\item $D_p$ - Partial solution set of sets, $B$, where each element $B_i \in S$ is a set cover.
+\end{itemize}
+\begin{itemize}
+	\item \textit{Creative data sets/selection:}
+	\begin{itemize}
+		\item $E_c$ - Set of elements, $e_c \in E$
+		\item $L(ci)$ - List of $E_c$ sets covered with cost $ci$. When a node is visited at step $k$, the current cover $E_c$ and the current cost $Z$ are added to $L$. When a subsequent node is visited at step $k + 1$, it will search this list to see if some set $\{E_{c1}, ... E_{ck-1}\}$ covers the a subset of the elements in $E_c$, but at a lower cost $ci_i$. If so, then we do not need to explore this branch of the tree. Without adding additional heuristics to $L$, a linear search is performed each time it is accessed. This increase complexity O(n) for each node. Although not implemented in this application, a beneficial future enhancement would be to reduce the search time required for $L$.
+	\end{itemize}
+	\item Tableau: The tableau consists of $M$ blocks of columns, one for each $e_k$ of $E$. The $k$th block will consist of the sets of $S$ that cover $e_k$, but do not contain lower numbered elements $e_1,...,e_{k-1}$. In each block, a variable $l$ is initialized to the first position in each block. This will keep track of the current set within the blocks. The sets within each block are sorted by cost per element covered, $ci_r$. A merge sort was selected for this operation, which is O(n log n) [1]. The merge operation for each block $i$ is O(($n_i – m$ log($n_i – m)$. The $\sum_{n = 1}^m$ O(($n_i – m$ log($n_i – m)$ = O(n log n). Heuristic 2 adds an additional merge sort, this time by the $|S\prime| \in$ block $i$. Because merge sort preserves underlying sort order, we can use two consecutive sorts, the first by the $|S\prime|$, then then by the cost of the $S\prime$. The additional sort increases the initial sort complexity to O(2 * n log(n)). The idea behind this heuristic to reduce the search space by selecting sets that have a higher coverage first. By selecting sets with higher coverage, we should potentially reduce the number of sets that are visited later in the search, where pruning will take place with either $Z$ or the $L$ set.
+\end{itemize}
+
+Imports: \textit{ADT set, array, sequence, Boolean, Integer}
+
+Operations:
+\begin{itemize}
+	\item Initialization: Initial $(E, S)$, $ci$, $T$, and $L$
+	\item Next State Generator: The algorithm will keep track of the current block, $t$ in the Tableau $T$, as well as the current set within the block, $g_i$. Returns a set $b \in S_k$, where $S_k$ is at the $g_i$ position of block $k$.
+	\item Feasibility: ($e$, $s$) – Determine if $e \in E$ is covered by $s \in S$ <Add symbolic logic>
+	\item Solution: ($S$, $Z$): Determines if all elements $e \in E$ have been covered by $B$ at cost $Z$.
+	\item Objective: Minimize $Z$ to cover $e \in E$.
+	\item Feasibility: I(x): x = (element, set) = ($e_i$, $s_j$), such that $e_i$ should be an element in $E$ in $D_i$ and $s_i$ should be a set in $S$ in the input $D_i$
+O($z$, $B$): $z$ is a cost for step $k$, and $B \in D_o$
+\end{itemize}
+	
+\subsection{Algorithm Domain Design Continuing Refinement}
+
+Operations:
+\begin{itemize}
+	\item Initialization: Initial $(E, S)$, $ci$, $T$, and $L$
+		\begin{itemize}
+			\item \textit{setupTableau()}: Sets up the Tableau $T$
+		\end{itemize}
+	\item Next State Generator: The algorithm will keep track of the current block, $t$ in the Tableau $T$, as well as the current set within the block, $g_i$. Returns a set $b \in S_k$, where $S_k$ is at the $g_i$ position of block $k$.
+		\begin{itemize}
+			\item \textit{getMin()}: Gets the next block from the first uncovered element in E
+		\end{itemize}
+	\item Feasibility: ($e$, $s$) - Determine if $e \in E$ is covered by $s \in S$ 
+			\begin{itemize}
+				\item \textit{solutionPossible()}: Determines if a solution is possible. A solution is possible if: \begin{align*}
+				I \subseteq \{1,...,m\} \min \sum_{J \in I} w_j \\
+				\:s.t.\: \bigcup_{J \in I} S_j = E
+				\end{align*}
+				
+			\end{itemize}
+	\item Solution: ($S$, $Z$) - Determines if all elements $e \in E$ have been covered by $B$ at cost $Z$.
+			\begin{itemize}
+				\item \textit{step5()}: Corresponds directly to Christofides step 5, \textit{Test for new solution} in section 4.3: A tree search algorithm for the SPP
+			\end{itemize}
+	\item Objective: Minimize $Z$ to cover $e \in E$.
+	\item Backtrack: Determines when backtracking should occur in the algorithm. This is primarily where the heuristics should prune the search space.
+	\begin{itemize}
+		\item \textit{ste4()}: Corresponds directly to Christofides step 4, \textit{Backtrack} in section 4.3: A tree search algorithm for the SPP
+		\item Heuristics:
+			\begin{itemize}
+				\item If there exists $e_i$ in $E$ and $e_i$ no in $s_j$ for all $j$, then no solution exists
+				\item Heuristic 3: If there exists $e_i$ in $E$ with $E_i$ in $s_k$ and $e_i$ not in $s_j$ for all $j = k$, then $s_k$ is in all solutions. Initialize $B\prime$ to include these sets. After the algorithm is completed, $\hat{B} = \hat{B} \cup B\prime$. Additionally, the vector of covered sets, $E_c$ is initialized to include all those elements $e \in B\prime$. This initialization will ensure that these blocks in the Tableau will not be selected and thus not searched.
+				\item Heuristic 1: Determine if there is a set that covers a subset of the current elements at some step $k$ at a lower cost.
+			\end{itemize}
+	\end{itemize}
+\end{itemize}
 
 
 \section{SCP Heuristic Testing and Evaluation [c]} \label{scn:design}
@@ -145,10 +216,39 @@ If $\alpha_k = 1$, or there is only one set $S\prime$ in a block $k$, then that 
 [Justin]
 \subsection{Results [c.3]}
 [Justin]
-\subsection{Search Tree [c.4]} [Jon?]
+\subsection{Search Tree [c.4]}
+
+A sample search tree is drawn below in figure \ref{fig:samplegraph}. The input elements are $\{1 2 3 4 5\}$, and the sets, defined in $(\{e_1,...,e_n\}, cost)$ format, are $(\{1, 3\},1)$,
+$(\{2, 3\},2)$,
+$(\{1, 4, 5\},3)$,
+$(\{2, 3, 5\},4)$,
+$(\{4, 5\}, 2)$.
+
+\begin{figure}[ht!] \label{fig:samplegraph}
+	
+	
+	\centering
+	\includegraphics[width = 5.5in]{graph1.png}
+	
+	
+	%\vspace{-0.5cm}
+	\caption{This figure displays a sample graph created using the supplied input data. The initial Tableau is shown above the graph.}
+	
+	
+\end{figure}
+
 \section{AFIT SCP Program Software Engineering Practices} \label{scn:design}
 
-[Jon] Does the AFIT SCP Solver employ good software engineering practices?
+\subsection{SCP Implementation Discussion}
+\textit{Does the AFIT SCP Solver employ good software engineering practices?}
+Due to issues with both supplied code packages, we decided to write our own SCP solver from scratch. The decision to do this was based on the limited time available to solve the compilation issues, and a conscious decision to further understand the problem algorithm by implementing it. We did study the C++ implementation prior to creating our own solution, and it does follow many good software engineering principles, although from personal experience this evaluation can be subject to opinion. The code subscribed to valid object oriented design practices, was well documented, did not use unnecessarily complicated structures, although we could not identify an underlying design pattern. By dividing the work into small pieces, such as the list and block objects, it was simplifying the problem by the "divide and conquer" paradigm \cite{software}. We identified several instances of using functions to return multiple items with pointer references, which complicate the code somewhat. These variables probably should have been well labeled globals and used with caution. Because the code did not compile, I did examine the include structure of the files, and, as interpreted by the both Eclipse and Visual Studio, it appeared as if the software suffered from a "chicken or the egg" scenario where there was something of a circular dependency. This may have been eliminated with a more straight-forward order of object inheritance.
+
+Our own implementation was written in Java, using Eclipse IDE and Java 7, and there is no connection to the SCP solver 2006 Java code. We did not examine that software package. Instead, the algorithm was implemented as it was presented in by Christofides in section 4.3, \textit{A tree search algorithm for the SSP}, (modified according to Section 4.4). An advantage to this technique is that we obtained a greater understanding of the Christofides algorithm itself. We feel that this allowed us to better implement the heuristics.
+
+\textit{Discuss ease of understanding code in the AFIT SCP Solver. Discuss ease of standard interfaces.}
+
+The interfaces in the AFIT SCP C++ program were straight forward to understand. The set\_cover implements the main control structure of the algorithm, encapsulating steps 1 through 5 of the Christofides algorithm. Our implementation uses the searchSCP() function, which is very similar in control structure. Reductions are performed in reduction\_2\_1 and reduction\_2\_2, which are similarly performed in searchPossible, reduction 1 from section 4.2, and Heuristic 2, which is commented in SCPAlpha.java and implements reduction 2 from section 4.2. The C++ has several helper objects, such as List, opair, set, and block, with correspond to our own Block.java, Element.java, Tableau.java, and Set.java. We have an additional helper object to perform the sort, MergeSort.java. We believe that our own implementation has closer adherence to Object Oriented principles, however. Each of our objects directly correspond to a proposed data set in the design, and each is a simple extension of a standard ADT. The Block object is defined as $t$, the Tableau object is $T$, sets $S$ are defined in the Set Object, and an element $e \in E$ is implemented by the Element object. Additionally, our implementation uses the same data files as the C++ SCP implementation.
+
 
 \section{AFIT SCP Program Complexity} \label{scn:design}
 
@@ -156,16 +256,19 @@ If $\alpha_k = 1$, or there is only one set $S\prime$ in a block $k$, then that 
 
 \section{Integration} \label{scn:design}
 
-[Jon] Discuss ease of understanding code in the AFIT SCP Solver. Discuss ease of standard interfaces.
+
 
 \pagebreak
 \appendix		% Appendix begins here
 
 \section{Code Listing}
 
-[Both] Talk about code briefly.
-[Jon, you can add your source code below, once commented, then uncomment the \LaTeX -line. Neat, huh? Oh, and the caption needs to be a single sentence, otherwise it breaks. No idea why.]
-%\lstinputlisting[language=Java, caption=Your caption here.]{yourSourceCode.java}
+\lstinputlisting[language=Java, caption=Main SCP Search Class]{SCPAlpha.java}
+\lstinputlisting[language=Java, caption=Element Class]{Element.java}
+\lstinputlisting[language=Java, caption=Set Class]{Set.java}
+\lstinputlisting[language=Java, caption=Block Class]{Block.java}
+\lstinputlisting[language=Java, caption=Tableau Class]{Tableau.java}
+\lstinputlisting[language=Java, caption=Merge Sort Class Class]{MergeSort.java}
 
 \bibliographystyle{IEEEtran}
 \bibliography{algorthimBib}

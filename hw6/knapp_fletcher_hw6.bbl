@@ -24,4 +24,10 @@
 \bibitem{ClassNotes686}
 G.~Lamont, ``Advanced algorthim design class notes: Algorithm design.''
 
+\bibitem{software}
+\BIBentryALTinterwordspacing
+Software engineering principles. [Online]. Available:
+  \url{https://www.vikingcodeschool.com/software-engineering-basics/basic-principles-of-software-engineering}
+\BIBentrySTDinterwordspacing
+
 \end{thebibliography}
