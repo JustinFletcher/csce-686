@@ -11,7 +11,6 @@ function run_scp_program(program_call, input_file_name)
     end
 end
 
-
 function construct_random_set_matrix(n_sets, n_cover_elements, density)
 
     edges = density*((n_sets*n_cover_elements))
@@ -22,8 +21,6 @@ function construct_random_set_matrix(n_sets, n_cover_elements, density)
     return(a)
 
 end
-
-
 
 function set_matrix_to_input_file(a, filename, program_dir)
     f = open(program_dir*"\\"*filename, "w")
@@ -62,30 +59,36 @@ end
 
 
 #################
-a = construct_random_set_matrix(10,50, 0.2)
+
+a = construct_random_set_matrix(100, 50, 0.3)
 
 program_dir = "C:\\csce-686\\hw6\\scp_code\\original\\"
 cd(program_dir)
+
 set_matrix_to_input_file(a, "deleteme.txt", program_dir)
 
-tic()
 program_call = ` java -jar "SCP Solver 2006.jar" `
+tic()
 run_scp_program(program_call, "deleteme.txt")
-runtime = toq()
+runtime_unmod += toq()
 ######################
 #################
-a = construct_random_set_matrix(10,50, 0.2)
 
 program_dir = "C:\\csce-686\\hw6\\scp_code\\modified\\"
 cd(program_dir)
+
 set_matrix_to_input_file(a, "deleteme.txt", program_dir)
 
-tic()
-program_call = ` java -jar scpKF.jar temp_input_file.txt -H3 -noout`
-run_scp_program(program_call, "deleteme.txt")
-runtime = toq()
-######################
+program_call = ` java -jar scpKF.jar deleteme.txt -H1 -H2 -H3 -noout`
 
+tic()
+run_scp_program(program_call, "deleteme.txt")
+runtime += toq()
+######################
+runtime_unmod
+runtime
+println(runtime_unmod/runtime)
+######################
 
 function run_scp_program_experiment(program_call, program_dir, num_reps, n_sets_seq, n_elements_seq, density)
 
@@ -119,9 +122,6 @@ end
 ##############################################
 using PyPlot
 
-
-
-
 function movingWindowAverage(inputVector, windowSize)
 
     movingAverageWindowVector = Float64[]
@@ -145,8 +145,8 @@ end
 ##############################################
 
 # Select the experimental range.
-num_reps = 15
-n_sets_seq = [10:20:500]
+num_reps = 30
+n_sets_seq = [10:20:1500]
 n_elements_seq = [10:5:100]
 
 
@@ -159,7 +159,7 @@ original_program_dir = "C:\\csce-686\\hw6\\scp_code\\original\\"
 scp_runtime_mat = @time run_scp_program_experiment(original_scp_call, original_program_dir, num_reps, n_sets_seq, n_elements_seq, 0.30)
 
 
-#####################
+#############################
 
 # Calculate the mean.
 scp_runtime_mat_mean = slice(mean(scp_runtime_mat,1), 1,:,:)
@@ -168,7 +168,8 @@ scp_runtime_mat_mean = slice(mean(scp_runtime_mat,1), 1,:,:)
 figure(1)
 
 subplot(2,3,(2,3))
-imshow(scp_runtime_mat_mean,interpolation="none",
+imshow(scp_runtime_mat_mean,
+       interpolation="none",
        extent=[n_sets_seq[1],n_sets_seq[end],n_elements_seq[1],n_elements_seq[end]],
        origin="lower",
        aspect=5)
@@ -207,17 +208,19 @@ legend(loc=2)
 ##############################################
 
 # Select the experimental range.
-num_reps = 15
-n_sets_seq = [10:20:500]
+num_reps = 30
+n_sets_seq = [10:20:1500]
 n_elements_seq = [10:5:100]
 
 
 # Initialize the program calls.
-modified_scp_call = ` java -jar scpKF.jar temp_input_file.txt -H3 -noout`
+modified_scp_call = ` java -jar scpKF.jar temp_input_file.txt -H1 -noout`
 modified_program_dir = "C:\\csce-686\\hw6\\scp_code\\modified\\"
 
 # Run the eperiment.
 modified_scp_runtime_mat = @time run_scp_program_experiment(modified_scp_call, modified_program_dir, num_reps, n_sets_seq, n_elements_seq, 0.30)
+
+#############################
 
 # Calculate the mean.
 modified_scp_runtime_mat_mean = slice(mean(modified_scp_runtime_mat,1), 1,:,:)
@@ -225,8 +228,16 @@ modified_scp_runtime_mat_mean = slice(mean(modified_scp_runtime_mat,1), 1,:,:)
 # Pplot the results.
 figure(2)
 subplot(2,3,(2,3))
-imshow(modified_scp_runtime_mat_mean,interpolation="none")
-colorbar(orientation="horizontal")
+imshow(modified_scp_runtime_mat_mean,
+       interpolation="none",
+       extent=[n_sets_seq[1],n_sets_seq[end],n_elements_seq[1],n_elements_seq[end]],
+       origin="lower",
+       aspect=5)
+colorbar(orientation="horizontal", label="  Running Time \$\ (s) \$\ ")
+xlabel(" \$\ n \$\ (Number of Sets)")
+ylabel(" \$\ n \$\ (Number of Elements to Cover)")
+title("Mean Running Time of the SCP Program")
+
 
 subplot(2,3,(5,6))
 modified_scp_runtime_by_nsets_mat_mean = mean(modified_scp_runtime_mat_mean ,1)
@@ -238,8 +249,9 @@ title("Set-Wise Marginal Mean Running Time of the Modified SCP Program")
 xlabel(" \$\ n \$\ (Number of Sets)")
 ylabel(" \$\ t \$\ \$\ (s) \$\ ")
 legend(loc=2)
+xlim(0,1500)
 
-modified_scp_runtime_by_nelemnts_mat_mean = mean(scp_runtime_mat_mean, 2)
+modified_scp_runtime_by_nelemnts_mat_mean = mean(modified_scp_runtime_mat_mean, 2)
 
 
 subplot(2,3,1)
@@ -252,4 +264,3 @@ title("Cover-Element-Wise Marginal Mean Running Time of the Modified SCP Program
 xlabel(" \$\ n \$\ (Number of Elemtns to Cover)")
 ylabel(" \$\ t \$\ \$\ (s) \$\ ")
 legend(loc=2)
-

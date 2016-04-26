@@ -21,6 +21,8 @@ I was expecting a `,' or a `}'---line 116 of file algorthimBib.bib
  :  url ={http://vanhemert.co.uk/publications/EC-Evolving_combinatorial_problem_instances_that_are_difficult_to_solve.pdf},
 (Error may have been on previous line)
 I'm skipping whatever remains of this entry
+Warning--I'm ignoring MCT1's extra "author" field
+--line 154 of file algorthimBib.bib
 -- IEEEtran.bst version 1.13 (2008/09/30) by Michael Shell.
 -- http://www.michaelshell.org/tex/ieeetran/bibtex/
 -- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.

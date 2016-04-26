@@ -39,10 +39,20 @@ Cs105 notes, dartmouth. [Online]. Available:
   \url{http://www.suhendry.net/blog/?p=1647}
 \BIBentrySTDinterwordspacing
 
+\bibitem{MCT1}
+F.~W. Takes, ``Applying monte carlo techniques to the capacitated vehicle
+  routing problem,'' 2010.
+
 \bibitem{ClassNotes686}
 G.~Lamont, ``Advanced algorthim design class notes: Algorithm design.''
 
 \bibitem{graph_algorithms_cristofides}
 Cristofides, \emph{Graph Algorithms}.
+
+\bibitem{Julia}
+\BIBentryALTinterwordspacing
+The julia technical computing language. [Online]. Available:
+  \url{http://julialang.org/}
+\BIBentrySTDinterwordspacing
 
 \end{thebibliography}

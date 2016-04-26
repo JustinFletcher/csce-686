@@ -42,7 +42,10 @@
 	showstringspaces = false,               
 	numbers=left,                    
 	numbersep=5pt,                 
-	tabsize=4
+	tabsize=4,
+	frame=single,
+	breaklines=true,
+	postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}}
 }
 
 
@@ -130,11 +133,11 @@ The heuristic that we presented uses the relationship between matching sets and 
 
 
 
-\section{Talbi 1.11 [a]}
+\section{Talbi 1.11 [b]}
 
 \textit{Define one or more greedy algorithms for the CVRP problem. Give some examples of constraints or more general models encountered in practice.}
 
-The Capacitated Vehicle Routing Problem (CVRP) is defined by a Graph $G = (V, A)$. The nodes represent "customers" and $A$ defines costs, denoted as $c_{ij}$, associated with each edge. Additionally, a central "depot" node is defined, as well as a capacity $Q$ for each "vehicle," associated with each "route" [ref MCT1]. A depot can only have $H$ number of routes. Customers have an associated demand, $d_i$, which defines the quantity that will be used to calculate the total capacity of a route. This problem finds routes for a fleet of vehicles so that every customer is covered and no vehicle exceeds its capacity.
+The Capacitated Vehicle Routing Problem (CVRP) is defined by a Graph $G = (V, A)$. The nodes represent "customers" and $A$ defines costs, denoted as $c_{ij}$, associated with each edge. Additionally, a central "depot" node is defined, as well as a capacity $Q$ for each "vehicle," associated with each "route" \cite{MCT1}. A depot can only have $H$ number of routes. Customers have an associated demand, $d_i$, which defines the quantity that will be used to calculate the total capacity of a route. This problem finds routes for a fleet of vehicles so that every customer is covered and no vehicle exceeds its capacity.
 
 A well-known algorithm for solving the CVRP is the Clarke and Wright Savings (CWS) algorithm, developed in 1964 [2]. It is a greedy, heuristic driven algorithm that does not guarantee an optimal solution, although it will often provide a good solution [3]. This method is initialized by assuming that each customer (non-depot node), is visited by its own vehicle. If the graph consists of the depot node A, and two customers $i$ and $j$, the cost $D1$, is calculated using the formula
 
@@ -142,24 +145,21 @@ A well-known algorithm for solving the CVRP is the Clarke and Wright Savings (CW
 D_1 = c_{Ai} + c_{iA} + c_{Aj} + c_{jA}
 \end{align*}
 
-The algorithm combines routes to obtain a new route by assigning two customers to be served by the same vehicle, assuming the vehicle's capacity Q has not been exceeded. The new cost is
+The algorithm combines routes to obtain a new route by assigning two customers to be served by the same vehicle, assuming the vehicle's capacity Q has not been exceeded. The new cost is given by
 
 \begin{align*}
-D_2 = c_{Ai} + c_{ij} + c_jA
+D_2 = c_{Ai} + c_{ij} + c_jA.
 \end{align*}
 
-A total cost savings, $S_{ij}$, is calculated:
+\noindent The total cost savings, $S_{ij}$, is then calculated as
 
 \begin{align*}
-S_{ij} = D_1 – D_2 = c_{iA} + c_{Aj} – c_{ij}
+S_{ij} = D_1 – D_2 = c_{iA} + c_{Aj} – c_{ij}.
 \end{align*}
 
-This saving is used to determine if the points $i$ and $j$ should be on the same route. Large values of S indicate that the route is advantageous. 
-The algorithm starts by calculating the savings for all pairs of customers and putting them in a sequence $R$. This sequence is then sorted in descending order of the savings. When considering a pair of points $i$ and $j$ whose capacity is less then $Q$ for a particular route, they are added to the route such that $i$ is visited and then $j$, but only if this can be done without disrupting the direct connection between two nodes. In the parallel version of this algorithm, only one pass is required through $R$, and routes are built simultaneously [3].
+This saving is used to determine if the points $i$ and $j$ should be on the same route. Large values of $S$ indicate that the route is advantageous. The algorithm starts by calculating the savings for all pairs of customers and putting them in a sequence $R$. This sequence is then sorted in descending order of the savings. When considering a pair of points $i$ and $j$ whose capacity is less then $Q$ for a particular route, they are added to the route such that $i$ is visited and then $j$, but only if this can be done without disrupting the direct connection between two nodes. In the parallel version of this algorithm, only one pass is required through $R$, and routes are built simultaneously [3].
 
-Not only does this algorithm not guarantee an optimal solution, it cannot guarantee that the number of routes will be exactly $H$. A particular execution of the algorithm may find some $H^\prime$ greater then $H$. However, using the savings heuristic it can produce a solution that is usually close to optimal [4].
-
-There are a wide variety of solutions to the CVRP in the literature that use Monte-Carlo techniques to improve the search. One such algorithm, described in [2], uses a random sampling to acquire a solution.
+Not only does this algorithm not guarantee an optimal solution, it cannot guarantee that the number of routes will be exactly $H$. A particular execution of the algorithm may find some $H^\prime$ greater then $H$. However, using the savings heuristic it can produce a solution that is usually close to optimal [4]. There are a wide variety of solutions to the CVRP in the literature that use Monte-Carlo techniques to improve the search. One such algorithm, described in [2], uses a random sampling to acquire a solution.
 
 In practice, there are many additional constraints for CVRP problems. One such domain is the oil and gas industry [4]. For particular delivery vehicles, the presence of flow meters can be used to satisfy the demands of multiple customers. Additionally, after certain operations, the delivery vehicles may require cleaning, which must be factored into the route plan. Although not specifically mentioned in the source, the presence of refueling stations would constrain the routes further.
 
@@ -224,11 +224,11 @@ The algorithm domain to which the SCP problem will be mapped in this work is the
 
 \section{Testing the AFIT SCP Solver [c.2]} \label{scn:testing}
 
-In this section, we describe the performance of the AFIT SCP Program (ASP) when applied to several SCP problems of varying complexity. The performance of the ASP is evaluated on a real-world Air Force problem, and is rigorously examined using a set of contrived SCP instances; these instances are constructed such that many combinations of number of cover-elements, number of covering sets, and density are considered. 
+In this section, we describe the performance of the AFIT SCP Program when applied to several SCP problems of varying complexity. The performance of the AFIT SCP Solver is evaluated on a real-world Air Force problem, and is rigorously examined using a set of contrived SCP instances; these instances are constructed such that many combinations of number of cover-elements, number of covering sets, and density are considered. 
 
 \subsection{The RIF Problem: An Air Force Application of SCP [c.3.1]} \label{scn:testing_usaf}
 
-In order to evaluate the performance of the ASP on a real-world\footnote{This problem is only notionally real-world, and is constructed for the purposes of this work.} problem, we define a problem which is relevant to the United States Air Force (USAF). The USAF has a budget problem; in order to solve this problem it has decided to fire a large portion of its workforce. This policy is called a reduction in force (RIF), and so we call the associated problem of selecting which Airmen to fire the RIF problem.
+In order to evaluate the performance of the AFIT SCP Solver on a real-world\footnote{This problem is only notionally real-world, and is constructed for the purposes of this work.} problem, we define a problem which is relevant to the United States Air Force (USAF). The USAF has a budget problem; in order to solve this problem it has decided to fire a large portion of its workforce. This policy is called a reduction in force (RIF), and so we call the associated problem of selecting which Airmen to fire the RIF problem.
 
 Though this problem is applicable to the USAF as a whole, we limit the examination of the problem in this work to the community of UAV pilots, for ease of analysis. The elements which must be covered in this problem are the individual aircraft to be flown. The covering sets are the pilots, each of which can fly at least one type UAV; for simplicity we assume that the cost of a pilot is directly proportional to their pay grade, and that pay grade is randomly assigned between O-1 an O-5. Clearly, the problem is to find the minimum cost combination of pilots, such that all aircraft can be flown. For simplicity and empirical consistency, we do not consider operational sustainability or crew lifestyle impacts, though this would serve as an interesting topic for future works. 
 
@@ -236,11 +236,9 @@ There is, however, a detail of this problem that is an additional constraint to 
 
 \subsection{Rigorous Testing [c.3.2]} \label{scn:testing_complete}
 
-In this section we evaluate the performance of the ASP on problems of varying dimensionality. An SCP instance can be defined abstractly with three quantities, the number of sets, the number of cover elements, and the density. Because the complexity of the problem depends on all three of these quantities, we vary all three in our experiments in this work. 
+In this section we evaluate the performance of the AFIT SCP Solver on problems of varying dimensionality. An SCP instance can be defined abstractly with three quantities, the number of sets, the number of cover elements, and the density. Because the complexity of the problem depends on all three of these quantities, we vary all three in our experiments in this work. 
 
 \begin{figure}[ht!]\label{fig:runtime_analysis_density0p3}
-	
-	
 	
 	\centering
 	\centerline{\includegraphics[width = 6.7in]{running_time_original_density0p3.png}}
@@ -248,8 +246,7 @@ In this section we evaluate the performance of the ASP on problems of varying di
 	\hfill
 	
 	%\vspace{-0.5cm}
-	\caption{This figure displays the average running time performance of the ASP, over $20$ runs, for various instance configurations from the problem domain. All instances in this figure have a density of approximately $0.3$.}
-	
+	\caption{This figure displays the average running time performance of the AFIT SCP Solver, over $20$ runs, for various instance configurations from the problem domain. All instances in this figure have a density of approximately $0.3$.}
 	
 \end{figure}
 
@@ -267,7 +264,7 @@ We construct an automated instance generation mechanism to provide randomly-cons
 	\hfill
 	
 	%\vspace{-0.5cm}
-	\caption{This figure displays the average running time performance of the ASP, over $20$ runs, for various instance configurations from the problem domain. All instances in this figure have a density of approximately $0.6$.}
+	\caption{This figure displays the average running time performance of the AFIT SCP Solver, over $20$ runs, for various instance configurations from the problem domain. All instances in this figure have a density of approximately $0.6$.}
 	
 	
 \end{figure}
@@ -275,23 +272,26 @@ We construct an automated instance generation mechanism to provide randomly-cons
 Figure~\ref{fig:runtime_analysis_density0p3} and Figure~\ref{fig:runtime_analysis_density0p6} display the results obtained by running the SCP solver. In each of these figures three plots are displayed, each of which highlights a particular element of the algorithms performance. The top-right plots are tile plots which show the mean running time, over $20$ runs, of the SCP program, for the number number of sets indicated on the horizontal axis, and the number os elements indicated on the vertical axis. The bottom-right plot displays the marginal mean and standard deviation of program running time, as the number of sets varies. These values are calculated by taking the mean and standard deviation of the mean running time values for a particular number of sets, across all numbers of elements to cover. The top-left plot shows the marginal mean and standard deviation of running time for a particular number of elements to cover across all numbers of sets.
 
 
-
-Observing Figure~\ref{fig:runtime_analysis_density0p3}, we find several interesting trends. We find that the running time complexity of the ASP is approximately linear in both the number of cover elements and the number of covering sets. While this suggests that the ASP program runs in time of order $O(mn)$, where $m$ is the number of sets and $n$ is the number of elements to be covered, it does not necessarily prove it. It is possible that this trend does not hold in the asymptotic limit, given that the underlying problem is NP-complete. 
+Observing Figure~\ref{fig:runtime_analysis_density0p3}, we find several interesting trends. We find that the running time complexity of the AFIT SCP Solver is approximately linear in both the number of cover elements and the number of covering sets. While this suggests that the AFIT SCP Solver program runs in time of order $O(mn)$, where $m$ is the number of sets and $n$ is the number of elements to be covered, it does not necessarily prove it. It is possible that this trend does not hold in the asymptotic limit, given that the underlying problem is NP-complete. Indeed, logarithm-like behavior is seen in the bottom-right plot in Figure~\ref{fig:runtime_analysis_density0p3}. Additional instances should be evaluated in future work to determine if this apparent relationship exists.
 There is interesting non-linearity present in the small set-number limit, which is visible in the tile plot and the set-wise marginal plot for instances with number of sets less than $200$. In this limit, the number of elements to be covered has little effect on the running time of the algorithm. It is likely that increase in speed is due to early stopping, cause by the insufficiency of the covering sets to cover one or more of the cover elements.
 
-In order to evaluate the sensitivity of the running time of the ASP to the density of the SCP instances, two identical experiments were conducted. The results of the first, in which all instances had a density of $0.3$ are show in Figure~\ref{fig:runtime_analysis_density0p3}. The results of the second, in which all instances had a density of $0.6,$ are shown in Figure~\ref{fig:runtime_analysis_density0p6}. Contrasting these two figures reveals an interesting relationship. First, not that there is a consistent and substantial higher-running-time bias in the higher-density case. Observe also that the mean running time behavior of the ASP, with respect to the number of sets in the instances, is biased but otherwise unchanged. Meanwhile, the running time behavior with respect to the number of elements is both biased \emph{and} has considerably higher variance. This implies that the running time of the ASP is more sensitive to the number of elements to be covered than the number of cover sets in the high-density limit. 
+In order to evaluate the sensitivity of the running time of the AFIT SCP Solver to the density of the SCP instances, two identical experiments were conducted. The results of the first, in which all instances had a density of $0.3$ are show in Figure~\ref{fig:runtime_analysis_density0p3}. The results of the second, in which all instances had a density of $0.6,$ are shown in Figure~\ref{fig:runtime_analysis_density0p6}. Contrasting these two figures reveals an interesting relationship. First, not that there is a consistent and substantial higher-running-time bias in the higher-density case. Observe also that the mean running time behavior of the AFIT SCP Solver, with respect to the number of sets in the instances, is biased but otherwise unchanged. Meanwhile, the running time behavior with respect to the number of elements is both biased \emph{and} has considerably higher variance. This implies that the running time of the AFIT SCP Solver is more sensitive to the number of elements to be covered than the number of cover sets in the high-density limit. 
 
-\subsection{ASP Limitations [c.3.3]} \label{scn:testing_limitations}
+\subsection{AFIT SCP Solver Limitations [c.3.3]} \label{scn:testing_limitations}
 
-The limitations of the ASP were evaluated by producing sequentially more difficult SCP instances. We found that the ASP program was prohibitively long-running in experimental setups when the instance sizes grew beyond $100$ cover elements. Examining the performance of the program in isolated runs, we observe that instances with $150$ cover elements require approximately $35$ seconds. While for some problems, this may be acceptable, it is not acceptable for use in experiments consisting of many trials, which are have fixed delivery dates, such as the ones accomplished in support of this work
+The limitations of the AFIT SCP Solver were evaluated by producing sequentially more difficult SCP instances. We found that the AFIT SCP Solver program was prohibitively long-running in experimental setups when the instance sizes grew beyond $100$ cover elements. Examining the performance of the program in isolated runs, we observe that instances with $150$ cover elements require approximately $35$ seconds. While for some problems, this may be acceptable, it is not acceptable for use in experiments consisting of many trials, which are have fixed delivery dates, such as the ones accomplished in support of this work
 
-%\subsection{ASP Comparison [c.3.4]} \label{scn:testing_comparisons}
+%\subsection{AFIT SCP Solver Comparison [c.3.4]} \label{scn:testing_comparisons}
 
 \pagebreak
 \appendix		% Appendix begins here
 	
 \section{Code Listing}
 
+This appendix contains the code, written in the Julia technical computing language \cite{Julia}, which implements the testing approach described and presented in this work. This code is included in the interest of reproducability, and runs as included.
+
+\lstinputlisting[language=Julia, caption=A script written in the Julia technical computing language which constructs a random SCP instances and runs the AFIT SCP Program  on those instances.]{scp_program_test_rig.jl}
+	
 \bibliographystyle{IEEEtran}
 \bibliography{algorthimBib}
 
