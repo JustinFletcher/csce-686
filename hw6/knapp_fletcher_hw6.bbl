@@ -24,6 +24,15 @@
 \bibitem{ClassNotes686}
 G.~Lamont, ``Advanced algorthim design class notes: Algorithm design.''
 
+\bibitem{hw5_knapp_fletcher_csce_686}
+J.~Fletcher and J.~Knapp, ``"csce 686 - homework 5".''
+
+\bibitem{Julia}
+\BIBentryALTinterwordspacing
+The julia technical computing language. [Online]. Available:
+  \url{http://julialang.org/}
+\BIBentrySTDinterwordspacing
+
 \bibitem{software}
 \BIBentryALTinterwordspacing
 Software engineering principles. [Online]. Available:

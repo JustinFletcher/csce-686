@@ -1,12 +1,5 @@
-This is BibTeX, Version 0.99d (TeX Live 2015)
-Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
-The top-level auxiliary file: knapp_fletcher_hw6.aux
+This is BibTeX, Version 0.99dThe top-level auxiliary file: knapp_fletcher_hw6.aux
 The style file: IEEEtran.bst
-Reallocated singl_function (elt_size=4) to 100 items from 50.
-Reallocated singl_function (elt_size=4) to 100 items from 50.
-Reallocated singl_function (elt_size=4) to 100 items from 50.
-Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
-Reallocated singl_function (elt_size=4) to 100 items from 50.
 Database file #1: algorthimBib.bib
 I was expecting a `,' or a `}'---line 93 of file algorthimBib.bib
  :  
@@ -33,45 +26,4 @@ I'm skipping whatever remains of this entry
 -- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
 
 Done.
-You've used 2 entries,
-            4039 wiz_defined-function locations,
-            817 strings with 7480 characters,
-and the built_in function-call counts, 649 in all, are:
-= -- 32
-> -- 5
-< -- 0
-+ -- 3
-- -- 1
-* -- 30
-:= -- 117
-add.period$ -- 3
-call.type$ -- 2
-change.case$ -- 2
-chr.to.int$ -- 0
-cite$ -- 2
-duplicate$ -- 53
-empty$ -- 67
-format.name$ -- 1
-if$ -- 121
-int.to.chr$ -- 0
-int.to.str$ -- 2
-missing$ -- 13
-newline$ -- 31
-num.names$ -- 1
-pop$ -- 44
-preamble$ -- 1
-purify$ -- 0
-quote$ -- 2
-skip$ -- 45
-stack$ -- 0
-substring$ -- 1
-swap$ -- 23
-text.length$ -- 0
-text.prefix$ -- 0
-top$ -- 5
-type$ -- 2
-warning$ -- 0
-while$ -- 1
-width$ -- 3
-write$ -- 36
 (There were 4 error messages)
