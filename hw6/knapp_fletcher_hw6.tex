@@ -136,16 +136,45 @@ If $\alpha_k = 1$, or there is only one set $S\prime$ in a block $k$, then that 
 
 
 
-\section{SCP Heuristic Testing and Evaluation [c]} \label{scn:design}
+\section{SCP Heuristic Testing and Evaluation [c]} \label{scn:testing}
 
-[Justin]
-\subsection{Problem Selection [c.1]}
-[Justin]
+In this section, we evaluate the performance of the AFIT SCP Solver implemented with additional heuristics as described in the preceding section. A design of experiments which methodically evaluates the performance of the AFIT SCP Solver on a large variety of SCP instances is constructed. This experimental design is applied to both the unmodified and modified versions of the AFIT SCP solver, and the results are analyzed. 
+
+\subsection{Problem Selection [c.1]} \label{scn:problem_selection}
+The USAF RIF problem, described in \cite{hw5_knapp_fletcher_csce_686}, is real-world problem upon which all randomly constructed instances of the SCP in this work are based. A complete description of the problem is found in \cite{hw5_knapp_fletcher_csce_686}. Briefly, the problem is that of selecting a subset of UAV pilots such that the maximum number of aircraft can be flown simultaneously for the minimum personnel cost. The details of this problem are such that the density of the corresponding SCP instances turns out to be approximately $30\%$. Because the RIF must be implemented at organizations of all sizes, it is reasonable to evaluate this problem over a large range of instance dimensions.
+
 \subsection{Test Suite Description [c.2]}
-[Justin]
+
+The testing suite used in the this work is of similar construction to that which is used in \cite{hw5_knapp_fletcher_csce_686}. This software suite, written in the Julia technical computing language \cite{Julia}, and included as Appendix B, constructs random SCP instances, and applies the AFIT SCP Solver to those instances. Given the desired dimensionality of the SPC instance, which is the number of sets, elements, and the density of the instance, the suite produces an instance conforming to that request. An input file suitable for the AFIT SCP Solver is produced from  
+
 \subsection{Results [c.3]}
-[Justin]
-\subsection{Search Tree [c.4]} [Jon?]
+
+\begin{figure}[ht!]\label{fig:runtime_analysis_original_density0p3}
+	
+	\centering
+	\centerline{\includegraphics[width = 6.7in]{running_time_original_density0p3.png}}
+	%  \vspace{2.0cm}
+	\hfill
+	
+	%\vspace{-0.5cm}
+	\caption{This figure displays the average running time performance of the original AFIT SCP Solver, over $20$ runs, for various instance configurations from the problem domain. All instances in this figure have a density of approximately $0.3$.}
+	
+\end{figure}
+
+\begin{figure}[ht!]\label{fig:runtime_analysis_modified_density0p3}
+	
+	\centering
+	\centerline{\includegraphics[width = 6.7in]{running_time_modified_density0p3_noout_noH1.png}}
+	%  \vspace{2.0cm}
+	\hfill
+	
+	%\vspace{-0.5cm}
+	\caption{This figure displays the average running time performance of the modified AFIT SCP Solver, over $20$ runs, for various instance configurations from the problem domain. All instances in this figure have a density of approximately $0.3$.}
+	
+\end{figure}
+
+\subsection{Search Tree [c.4]} 
+[Jon?]
 \section{AFIT SCP Program Software Engineering Practices} \label{scn:design}
 
 [Jon] Does the AFIT SCP Solver employ good software engineering practices?
@@ -163,7 +192,7 @@ If $\alpha_k = 1$, or there is only one set $S\prime$ in a block $k$, then that 
 
 \section{Code Listing}
 
-[Both] Talk about code briefly.
+[Justin ] Talk about code briefly.
 [Jon, you can add your source code below, once commented, then uncomment the \LaTeX -line. Neat, huh? Oh, and the caption needs to be a single sentence, otherwise it breaks. No idea why.]
 %\lstinputlisting[language=Java, caption=Your caption here.]{yourSourceCode.java}
 
