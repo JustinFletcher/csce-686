@@ -39,4 +39,7 @@ Software engineering principles. [Online]. Available:
   \url{https://www.vikingcodeschool.com/software-engineering-basics/basic-principles-of-software-engineering}
 \BIBentrySTDinterwordspacing
 
+\bibitem{graph_algorithms_cristofides}
+Cristofides, \emph{Graph Algorithms}.
+
 \end{thebibliography}

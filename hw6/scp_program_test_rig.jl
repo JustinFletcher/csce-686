@@ -1,5 +1,15 @@
 
-
+#############################################################
+#
+# AFIT SCP Solver Automated Testing Suite
+#
+# Author: Justin Fletcjer
+#
+# Purpose: This program automoatically constructs random
+# instances of the SCP and solves them using the AFIT SCP
+# Solver. The resultant running times are
+#
+#############################################################
 function run_scp_program(program_call, input_file_name)
    open(program_call, "w", STDOUT) do io
 
@@ -70,7 +80,7 @@ set_matrix_to_input_file(a, "deleteme.txt", program_dir)
 program_call = ` java -jar "SCP Solver 2006.jar" `
 tic()
 run_scp_program(program_call, "deleteme.txt")
-runtime_unmod += toq()
+runtime_unmod = toq()
 ######################
 #################
 
@@ -83,7 +93,7 @@ program_call = ` java -jar scpKF.jar deleteme.txt -H1 -H2 -H3 -noout`
 
 tic()
 run_scp_program(program_call, "deleteme.txt")
-runtime += toq()
+runtime = toq()
 ######################
 runtime_unmod
 runtime
@@ -159,8 +169,14 @@ original_program_dir = "C:\\csce-686\\hw6\\scp_code\\original\\"
 scp_runtime_mat = @time run_scp_program_experiment(original_scp_call, original_program_dir, num_reps, n_sets_seq, n_elements_seq, 0.30)
 
 
-#############################
+############################
 
+
+scp_runtime_mat[7,indmax(int(n_elements_seq.==60)),indmax(int(n_sets_seq.==450))]
+
+scp_runtime_mat[indmax(scp_runtime_mat[:,indmax(int(n_elements_seq.==60)),indmax(int(n_sets_seq.==450))]),indmax(int(n_elements_seq.==60)),indmax(int(n_sets_seq.==206))]
+
+############################
 # Calculate the mean.
 scp_runtime_mat_mean = slice(mean(scp_runtime_mat,1), 1,:,:)
 
@@ -176,14 +192,14 @@ imshow(scp_runtime_mat_mean,
 colorbar(orientation="horizontal", label="  Running Time \$\ (s) \$\ ")
 xlabel(" \$\ n \$\ (Number of Sets)")
 ylabel(" \$\ n \$\ (Number of Elements to Cover)")
-title("Mean Running Time of the SCP Program")
+title("Mean Running Time of the Original AFIT SCP Solver")
 subplot(2,3,(5,6))
 scp_runtime_by_nsets_mat_mean = mean(scp_runtime_mat_mean ,1)
 scp_runtime_by_nsets_mat_std = std(scp_runtime_mat_mean ,1)
 
 plot(n_sets_seq, vec(scp_runtime_by_nsets_mat_mean), label="Output Calculation Time", color="blue")
 errorbar(n_sets_seq, vec(scp_runtime_by_nsets_mat_mean), yerr=vec(scp_runtime_by_nsets_mat_std), fmt=".", alpha=0.7, color="blue")
-title("Set-Wise Marginal Mean Running Time of the SCP Program")
+title("Set-Wise Marginal Mean Running Time of the Original AFIT SCP Solver")
 xlabel(" \$\ n \$\ (Number of Sets)")
 ylabel("  Running Time \$\ (s) \$\ ")
 legend(loc=2)
@@ -197,7 +213,7 @@ scp_runtime_by_nelements_mat_std = std(scp_runtime_mat_mean ,2)
 
 plot(n_elements_seq, vec(scp_runtime_by_nelements_mat_mean), label="Output Calculation Time", color="blue")
 errorbar(n_elements_seq, vec(scp_runtime_by_nelements_mat_mean), yerr=vec(scp_runtime_by_nelements_mat_std), fmt=".", alpha=0.7, color="blue")
-title("Cover-Element-Wise Marginal Mean Running Time of the SCP Program")
+title("Cover-Element-Wise Marginal Mean Running Time of the Original AFIT SCP Solver")
 xlabel(" \$\ n \$\ (Number of Elements to Cover)")
 ylabel("  Running Time \$\ (s) \$\ ")
 legend(loc=2)
@@ -205,6 +221,8 @@ legend(loc=2)
 
 
 
+##############################################
+##############################################
 ##############################################
 
 # Select the experimental range.
@@ -236,7 +254,7 @@ imshow(modified_scp_runtime_mat_mean,
 colorbar(orientation="horizontal", label="  Running Time \$\ (s) \$\ ")
 xlabel(" \$\ n \$\ (Number of Sets)")
 ylabel(" \$\ n \$\ (Number of Elements to Cover)")
-title("Mean Running Time of the SCP Program")
+title("Mean Running Time of theModified AFIT SCP Solver")
 
 
 subplot(2,3,(5,6))
@@ -245,7 +263,7 @@ modified_scp_runtime_by_nsets_mat_std = std(modified_scp_runtime_mat_mean ,1)
 
 plot(n_sets_seq, vec(modified_scp_runtime_by_nsets_mat_mean), label="Output Calculation Time", color="blue")
 errorbar(n_sets_seq, vec(modified_scp_runtime_by_nsets_mat_mean), yerr=vec(modified_scp_runtime_by_nsets_mat_std), fmt=".", alpha=0.7, color="blue")
-title("Set-Wise Marginal Mean Running Time of the Modified SCP Program")
+title("Set-Wise Marginal Mean Running Time of the Modified AFIT SCP Solver")
 xlabel(" \$\ n \$\ (Number of Sets)")
 ylabel(" \$\ t \$\ \$\ (s) \$\ ")
 legend(loc=2)
@@ -260,7 +278,101 @@ modified_scp_runtime_by_nelements_mat_std = std(modified_scp_runtime_mat_mean ,2
 
 plot(n_elements_seq, vec(modified_scp_runtime_by_nelements_mat_mean), label="Output Calculation Time", color="blue")
 errorbar(n_elements_seq, vec(modified_scp_runtime_by_nelements_mat_mean), yerr=vec(modified_scp_runtime_by_nelements_mat_std), fmt=".", alpha=0.7, color="blue")
-title("Cover-Element-Wise Marginal Mean Running Time of the Modified SCP Program")
+title("Cover-Element-Wise Marginal Mean Running Time of the Modified AFIT SCP Solver")
 xlabel(" \$\ n \$\ (Number of Elemtns to Cover)")
 ylabel(" \$\ t \$\ \$\ (s) \$\ ")
 legend(loc=2)
+
+
+
+
+############################################## Direct comparison.
+common_max=maximum((maximum(scp_runtime_mat_mean),maximum(modified_scp_runtime_mat_mean)))
+common_min=minimum((minimum(scp_runtime_mat_mean),minimum(modified_scp_runtime_mat_mean)))
+figure(3)
+
+
+subplot(2,2,(1,2))
+imshow(scp_runtime_mat_mean,
+       interpolation="none",
+       extent=[n_sets_seq[1],n_sets_seq[end],n_elements_seq[1],n_elements_seq[end]],
+       origin="lower",
+       aspect=5,
+       vmin=common_min,
+       vmax=common_max)
+colorbar(orientation="horizontal", label="  Running Time \$\ (s) \$\ ")
+xlabel(" \$\ n \$\ (Number of Sets)")
+ylabel(" \$\ n \$\ (Number of Elements to Cover)")
+title("Mean Running Time of the Original AFIT SCP Solver")
+subplot(2,3,(5,6))
+scp_runtime_by_nsets_mat_mean = mean(scp_runtime_mat_mean ,1)
+scp_runtime_by_nsets_mat_std = std(scp_runtime_mat_mean ,1)
+
+
+
+subplot(2,2,(3,4))
+imshow(modified_scp_runtime_mat_mean,
+       interpolation="none",
+       extent=[n_sets_seq[1],n_sets_seq[end],n_elements_seq[1],n_elements_seq[end]],
+       origin="lower",
+       aspect=5,
+       vmin=common_min,
+       vmax=common_max)
+colorbar(orientation="horizontal", label="  Running Time \$\ (s) \$\ ")
+xlabel(" \$\ n \$\ (Number of Sets)")
+ylabel(" \$\ n \$\ (Number of Elements to Cover)")
+title("Mean Running Time of the Modified AFIT SCP Solver")
+
+
+############################################## Direct comparison.
+
+
+
+#####
+
+modified_scp_runtime_by_nelemnts_mat_mean = mean(modified_scp_runtime_mat_mean, 2)
+
+
+subplot(1,2,1)
+modified_scp_runtime_by_nelements_mat_mean = mean(modified_scp_runtime_mat_mean ,2)
+modified_scp_runtime_by_nelements_mat_std = std(modified_scp_runtime_mat_mean ,2)
+
+plot(n_elements_seq, vec(modified_scp_runtime_by_nelements_mat_mean), label="Modified AFIT SCP Solver", color="blue")
+errorbar(n_elements_seq, vec(modified_scp_runtime_by_nelements_mat_mean), yerr=vec(modified_scp_runtime_by_nelements_mat_std), fmt=".", alpha=0.7, color="blue")
+
+
+scp_runtime_by_nelemnts_mat_mean = mean(scp_runtime_mat_mean, 2)
+
+subplot(1,2,1)
+scp_runtime_by_nelements_mat_mean = mean(scp_runtime_mat_mean ,2)
+scp_runtime_by_nelements_mat_std = std(scp_runtime_mat_mean ,2)
+
+plot(n_elements_seq, vec(scp_runtime_by_nelements_mat_mean), label="Unmodified AFIT SCP Solver", color="red")
+errorbar(n_elements_seq, vec(scp_runtime_by_nelements_mat_mean), yerr=vec(scp_runtime_by_nelements_mat_std), fmt=".", alpha=0.7, color="red")
+title("Cover-Element-Wise Marginal Mean Running Time of Variations of the AFIT SCP Solver")
+xlabel(" \$\ n \$\ (Number of Elements to Cover)")
+ylabel("  Running Time \$\ (s) \$\ ")
+legend(loc=2)
+
+
+#####
+
+
+subplot(1,2,2)
+modified_scp_runtime_by_nsets_mat_mean = mean(modified_scp_runtime_mat_mean ,1)
+modified_scp_runtime_by_nsets_mat_std = std(modified_scp_runtime_mat_mean ,1)
+
+plot(n_sets_seq, vec(modified_scp_runtime_by_nsets_mat_mean), label="Modified AFIT SCP Solver", color="blue")
+errorbar(n_sets_seq, vec(modified_scp_runtime_by_nsets_mat_mean), yerr=vec(modified_scp_runtime_by_nsets_mat_std), fmt=".", alpha=0.7, color="blue")
+
+subplot(1,2,2)
+scp_runtime_by_nsets_mat_mean = mean(scp_runtime_mat_mean ,1)
+scp_runtime_by_nsets_mat_std = std(scp_runtime_mat_mean ,1)
+
+plot(n_sets_seq, vec(scp_runtime_by_nsets_mat_mean), label="Unmodified AFIT SCP Solver", color="red")
+errorbar(n_sets_seq, vec(scp_runtime_by_nsets_mat_mean), yerr=vec(scp_runtime_by_nsets_mat_std), fmt=".", alpha=0.7, color="red")
+title("Set-Wise Marginal Mean Running Time of VAriations of the AFIT SCP Solver")
+xlabel(" \$\ n \$\ (Number of Sets)")
+ylabel("  Running Time \$\ (s) \$\ ")
+legend(loc=2)
+xlim(0,1500)
