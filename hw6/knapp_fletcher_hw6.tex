@@ -316,8 +316,7 @@
 	\section{AFIT SCP Program Complexity [e]} \label{scn:complexity}
 	
 	Because SCP is known to be NP-complete, we know that the worst-case running time complexity of any algorithm which solves instances of SCP must be at least of exponential order. However, through the implemented heuristic and by approximation, it is possible to obtain feasible, though not necessarily optimal, solutions in sub-exponential time, for a large number of SPC instances. One example of an algorithm which is able to produces solutions to SCP instances in this manner is presented in\cite{graph_algorithms_cristofides}. In \cite{graph_algorithms_cristofides}, Chistofides maps the SCP domain to a DFS algorithm domain. A DFS on a graph $G=(V,E)$ has time complexity $O(|V(G)|+|E(G)|)$, thus the algorithms complexity is linear in the number of states which must be constructed \cite{AlgorithmsBook}. The number of states, however, can be at greater than exponential for a given instance specification. Thus it is not generally possible to characterize the running time of the algorithm, other than to say that it's worst-case running time is at least exponential.
-	
-	[Jon: there's a note in this section that says "Discuss... complexity of each new heuristic as well". Could you write a sentence or two on that? ]
+	Our Heuristic 1 adds a linear search for the list $L$, which is O(k) for each node at step k. This heuristic was proposed by Christofides, and it is hoped that the search in the $L$ list does not outway the savings in pruning the search tree. Heuristic 2 adds an extra O($2 * n * log * n$) complexity for the additional merge sorts in the initialization stage. Heuristic 3 adds O($m * n$) during initialization, where each element in $E$ is searched to determine how many sets cover it.
 	
 	\pagebreak
 	\appendix		% Appendix begins here
@@ -327,7 +326,7 @@
 	This appendix contains a complete listing of all SCP-related code written in support of this work. This code is written in the Java programming language, and is included herein for the purpose of future reproducability of the results discussed in this work.
 	\lstinputlisting[language=Java, caption=This listing contains the Main SCP Search Class.]{SCPAlpha.java}
 	\lstinputlisting[language=Java, caption=This listing contains the Element Class.]{Element.java}
-	%\lstinputlisting[language=Java, caption=Set Class.]{Set.java}
+	\lstinputlisting[language=Java, caption=Set Class.]{Set.java}
 	\lstinputlisting[language=Java, caption=This listing contains the Block Class.]{Block.java}
 	\lstinputlisting[language=Java, caption=This listing contains the Tableau Class.]{Tableau.java}
 	\lstinputlisting[language=Java, caption=This listing contains the Merge Sort Class.]{MergeSort.java}
