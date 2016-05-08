@@ -1,0 +1,223 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{epsfig}
+\usepackage{epstopdf}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{upgreek}
+\usepackage{tikz}
+\usepackage{verbatim}
+
+\usepackage{multirow}
+\usepackage[T1]{fontenc}
+\usepackage{beramono}
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinelanguage{Julia}%
+{morekeywords={abstract,break,case,catch,const,continue,do,else,elseif,%
+		end,export,false,for,function,immutable,import,importall,if,in,%
+		macro,module,otherwise,quote,return,switch,true,try,type,typealias,%
+		using,while},%
+	sensitive=true,%
+	morecomment=[l]\#,%
+	morecomment=[n]{\#=}{=\#},%
+	morestring=[s]{"}{"},%
+	morestring=[m]{'}{'},%
+}[keywords,comments,strings]%
+
+\lstset{%
+	language         = Julia,
+	keywordstyle     = \bfseries\color{blue},
+	stringstyle      = \color{magenta},
+	commentstyle     = \color{gray},
+	backgroundcolor= \color{backcolour}, 
+	basicstyle=\footnotesize,
+	showstringspaces = false,               
+	numbers=left,                    
+	numbersep=5pt,                 
+	tabsize=4,
+	frame=single,
+	breaklines=true,
+	postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}}
+}
+\lstset{
+	frame=single,
+	breaklines=true,
+	postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}}
+}
+
+
+\begin{document}
+	
+	\title{CSCE 686 Homework 8 - SCP Best First/A* Heuristics}
+	\author{Jon Knapp and Justin Fletcher}
+	\maketitle
+	
+	\section{SCP A* Heuristic Design and Development [a, b]} \label{scn:design}
+	
+	In this section, we apply the disciplined design process advocated in \cite{ClassNotes686} to construct the algorithms fundamental to the Set Covering Problem (SCP) using an A* algorithm. Additionally, we introduce two heuristics to the algorithm with the goal of reducing the search number of states which must be visited.
+	
+	\subsection{Problem Domain Description: SCP}
+	Given a set of elements: $E=\{e_1,...,e_n\}$, a family of subsets, $\{S_1,...,S_m\}\subseteq 2^E$, and weights $w_j \geq 0$ for each $j\in\{1,...,m\}$, the SCP is defined by the following formula:
+	
+	\begin{align*}
+	I \subseteq \{1,...,m\} \min \sum_{J \in I} w_j \\
+	\:s.t.\: \bigcup_{J \in I} S_j = E
+	\end{align*}
+	
+	
+	The input domain of the problem, which is a set of elements, $E$, can be specified by a set. The family of sets, $S$, is a set of sets, where each subset contains elements $E^\prime$ and cost $c$. Formally:
+	
+	\begin{itemize}
+		\item Input Domain $D_i$: A set of elements, E, and a set of sets. 
+		\begin{itemize}
+			\item E: Elements
+			\item S($E^\prime$, c): Set of sets
+			\begin{itemize}
+				\item $E^\prime$: Set of elements where $E^\prime \in E$
+				\item c: Cost of set
+			\end{itemize}
+		\end{itemize}	
+		\item Output Domain $D_o$: A Set of sets, $B$, such that $B \in S$, and $B$ satisfies set minimum covering property. 
+		
+		\item Input Function $I(E, S)$: Determines if the input conditions on the input $E$ and $S$ are satisfied. The required input conditions for this domain is that, for all $S(E^\prime, c)$, $E^\prime \in E$.
+		\item Output Function: $O(B)$: Determines if the output conditions are met. The conditions are given met when:
+		\begin{align*}
+		I \subseteq \{1,...,m\} \min \sum_{J \in I} w_j \\
+		\:s.t.\: \bigcup_{J \in I} S_j = E
+		\end{align*}
+		
+	\end{itemize}
+	
+	\subsection{Problem Domain and Algorithm Domain Integration}
+	
+	The algorithm domain to which the SCP problem will be mapped in this work is the global search via A*/BF search algorithm. Thus, the algorithm domain used in this work is that of BFS, which is described in \cite{ClassNotes686}. In order to use this algorithm to solve the SCP problem, the SCP domain must be mapped to the BFS domain. This integration is accomplished as follows:
+	
+	\begin{itemize}
+		\item A*/BF Basic Search Constructs
+		\begin{itemize}
+			\item \textbf{initialization($D_i$)}: Initializes a tree, denoted $t$. This is the initial starting node of the search tree.
+			\begin{itemize}
+				\item Search Tree Node $T_N$ is defined by the following variables:
+				\begin{itemize}	
+					\item $S\prime$: Set, contains $s \in S$ that are part of the partial solution
+					\item $U$: Set, contains $s \in S$, are the unselected sets (and thus not in the partial solution) at the current node
+					\item $c$: cost of tree node
+					\item $S\prime \cap U = \phi$					\item $z$: f(x) of node. F(x) = g(x) + h(x). g(x): $\sum \text{cost}(s) \: s.t. \: s \in S\prime$, ie. cost of all sets $s \in S\prime$, h(x): $\min \sum s \in U$
+				\end{itemize}
+				\item Priority Queue $Q$: Sequence that contains tree nodes. Ordered by f(x).
+			\end{itemize}	
+			\item \textbf{next-state-generator($D_i$)}: Returns new tree node, $T_N \in Q$, where $T_N$ contains $S\prime \in S$, $U \in S$, $c$ and $z$, such that $S\prime \cap U = \phi$.
+			\item \textbf{selection($D_i$)}: Returns $T_N$ where $S\prime \in S$ and $U \in S$, $S\prime \cap U = \phi$. $T_N$ is selected from the set of candidates $Q$. $T_N$ is the first item in the ordered sequence $Q$.
+			\item \textbf{feasibility}: Returns a Boolean, which is true if, for some $s \subset S$, $E$ is covered and is false otherwise.
+			\item \textbf{solution($B$, $z$)}: Returns a Boolean which is true if $S$ covers $E$ and is the minimum cover of $E$, i.e. $z$ is minimized.
+			\item \textbf{objective}:Returns a set $D_o$, which in this algorithm is a minimum cover of $E$.
+		\end{itemize}
+		\item Delay Termination: Because the A*/BF search only finds a minimal set cover, rather than a minimum set cover, we must prevent the algorithm from terminating until all covering sets have been either implicitly or explicitly examined.
+		\begin{itemize}
+			\item In some as yet undefined loop, iterate finding all minimal set covers possible in the problem instance.
+			\item Repeat the A*/BF search for SCP, avoiding duplication where possible.
+		\end{itemize}
+	\end{itemize}
+	
+	\subsection{Algorithm Domain Specification Refinement}
+	
+	In order to further refine this design, in pursuit of executable code, we must disambiguate several operations. We define a candidate solution set to be $S\prime \subseteq S$. We first specify the next state generation and selection functions. The next state should be a state which has not been previously selected.
+	
+	The algorithm initializes a tree, $T$. The algorithm will create tree nodes $T_N$, where each tree node is a iterative step in building a partial solution, $D_o$. The initial tree node will be initialized to the following:
+	\begin{itemize}
+		\item $S\prime$: $\phi$
+		\item $U$: Initialized to $S$.
+		\item $c$: 0
+		\item $z$: f(x) = g(x) + h(x). g(x): $\sum \text{cost}(s) \: s.t. \: s \in S\prime$, ie. cost of all sets, which is initially 0, $s \in S\prime$, h(x): $\min \sum s \in U$
+	\end{itemize}
+	The algorithm will define a current sequence of candidates $Q$ (of type $T_N$), a current best solution $\hat{B}$, and a current best metric $\hat{Z}$.
+	
+	Two heuristics were created for the A* SCP. The first heuristic, which we call Heuristic 1, estimates the minimum possible cost to a solution from a current set $S\prime$ in a tree node $T_N$. It is important that $h(x)$ in the $f(x)$ function does not overestimate the cost to the goal. By selecting a set $s_n \in U$ such that $\text{cost}(s_n) < \text{cost}(s_m)$, or the set with the lowest cost in the unselected set $U$, we can guarantee that it must be \textit{at least} cost${s_n}$ to reach a solution.
+	
+	Heuristic 2 attempts to eliminate branches of the tree that have already been explored. It will check to make sure that the current partial solution, $D_o$, set of sets has not already been visited in the past. A set, or visited map $M$, will contain a list of sorted strings that identifies the current solution set. If the solution set \{3, 4, 5\} has been encountered, it will search $M$ to see if a similar set has been visited in the past. It will not consider \{4, 5, 3\}, or some other order of the soltuion set. All of these potential solutions will have the same hash string "3,4,5".
+	
+	\begin{itemize}
+		\item $D_i$ - $(E, S)$, $c$
+		\begin{itemize}
+			\item $E$ - Set of elements $e_k$, where $k = 1,...,m$
+			\item $D_o$ - Set of sets, $S_r$, where $r = 1,...,n$ Each set $S_r$ contains elements $e \in E$
+			\item $ci_r$ - Cost for each set $S_r$.
+		\end{itemize}
+		\item $D_p$ - Tree of partial solution set of sets, $T$, where each element $T_N: S\prime \in S$ is a set cover.
+	\end{itemize}
+	\begin{itemize}
+		\item \textit{Creative data sets/selection:}
+		\begin{itemize}
+			\item $T_N$ - Tree node for $T$
+			\begin{itemize}	
+				\item $S\prime$: Set, contains $s \in S$ that are part of the partial solution
+				\item $U$: Set, contains $s \in S$, are the unselected sets (and thus not in the partial solution) at the current node
+				\item $c$: cost of tree node
+				\item $S\prime \cap U = \phi$					\item $z$: f(x) of node. F(x) = g(x) + h(x). g(x): $\sum \text{cost}(s) \: s.t. \: s \in S\prime$, ie. cost of all sets $s \in S\prime$, h(x): $\min \sum s \in U$
+			\end{itemize}
+			\item $Q$ - Priority Queue, sequence that contains frontier nodes of the tree
+		\end{itemize}
+	\end{itemize}
+	
+	Imports: \textit{ADT set, array, sequence, Boolean, Integer}
+	
+	Operations:
+	\begin{itemize}
+		\item Initialization: Initial $(E, S)$, $ci$, $T$, $\hat{B}$, $Z$, and $Q$. $Q$ will be sorted by $T_N: f(x)$.
+		\item Next State Generator: Returns new tree node, $T_N \in Q$. The first item in $Q$ will be the item with the least estimated solution, $f(x)$.
+		\item Feasibility: ($e$, $s$) - Determine if $T_N : e \in E$ is covered by $T_N : S\prime \in S$
+		\item Solution: ($S$, $Z$): Determines if all elements $e \in E$ have been covered by $\hat{B}$ at cost $Z$.
+		\item Objective: Minimize $Z$ to cover $e \in E$.
+		\item Feasibility: I(x): x = (element, set) = ($e_i$, $s_j$), such that $e_i$ should be an element in $E$ in $D_i$ and $s_i$ should be a set in $S$ in the input $D_i$
+		O($z$, $\hat{B}$): $z$ is a cost for step $k$, and $B \in D_o$
+	\end{itemize}
+	
+	\subsection{Algorithm Domain Design Continuing Refinement}
+	
+	Operations:
+	\begin{itemize}
+		\item Initialization: Initial $(E, S)$, $ci$, $T$, and $Q$
+		\begin{itemize}
+			\item Create sequence $Q$. It is a priority Queue, sorted by $T_N : f(x)$
+			\item Create initial Tree node $T_{N0}$.
+			\begin{itemize}
+				\item $S\prime$: $\phi$
+				\item $U$: Initialized to $S$.
+				\item $c$: 0
+				\item $z$: f(x) = g(x) + h(x). g(x): $\sum \text{cost}(s) \: s.t. \: s \in S\prime$, ie. cost of all sets, which is initially 0, $s \in S\prime$, h(x): $\min \sum s \in U$
+			\end{itemize}
+		\end{itemize}
+		\item Next State Generator: Next states are generated by creating new tree nodes from all the Unselected sets in the $T_N : U_i$ set. A $T_N\prime$ node created from $U_i$ is set to:
+		\begin{itemize}
+			\item $T_N\prime : S\prime = T_N : S \cup T_N : U_i$
+			\item $T_N\prime : U = T_N : U - U_i$
+			\item $T_N\prime : c = \sum_i \text{cost}(T_N\prime : S_i)$ 
+			\item $T_N\prime : z = T_N : c + \min \sum s \in U$. This is part of Heuristic 1.
+			\item $T_N\prime : E = set [1...n]$, where $i = 0$ if $T_N\prime$ covers element $i$. This is a helper variable used to determine of all the sets are covered. It is an array of [0, 1], from 1 to $n$, that is 0 if the set is not covered, and 1 if it is covered. 
+			\item When a node $T_N\prime$ is created, it is added to the priority queue $Q$. Is is then sorted according to $T_N : z$, such that the items with least estimated cost are first. However, if $T_N\prime$ is created where $T_N\prime : z > z$, it is not added to $Q$ because it is already greater than the current best solution and would never yield a better result. This is part of Heuristic 2.
+		\end{itemize}
+		\item Feasibility: ($e$, $s$) - Determine if $e \in E$ is covered by $s \in S$ 
+		\begin{itemize}
+			\item Determines if a solution is possible. A solution is possible if: \begin{align*}
+			I \subseteq \{1,...,m\} \min \sum_{J \in I} w_j \\
+			\:s.t.\: \bigcup_{J \in I} S_j = E
+			\end{align*}
+			
+		\end{itemize} 
+		\item Solution: ($S$, $Z$) - Determines if all elements $e \in T_N : E$ have been covered by $T_N : S$ at cost $Z$. 
+		\begin{itemize}
+			\item \textit{eCoversR()}: Determines if a tree node $T_N$ covers the elements $E$.
+		\end{itemize}
+		\item Objective: Minimize $Z$ to cover $e \in E$.
+
+	\end{itemize}
+	
+	
+\end{document}
